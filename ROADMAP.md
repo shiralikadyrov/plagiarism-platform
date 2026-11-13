@@ -56,7 +56,7 @@ plagiarism-platform/
 | A5 | Add `CITATION.cff` with authors, title, version and repository URL. | `CITATION.cff` | GitHub shows the "Cite this repository" button. | Should · Done |
 | A6 | Fill the "Source, licence and citation" section on the platform with the repository URL, licence and citation. | Updated `index.html` | Placeholder text removed. | Must · Done |
 | A7 | Tag release `v1.0.0` and archive it on Zenodo to get a DOI. | Release, DOI | DOI resolves and is shown in README and on the platform. | Should |
-| A8 | Add the grant number to the platform's project page and README. | Updated pages | Grant number visible. | Must · Done (АР2348777) |
+| A8 | Add the grant number to the platform's project page and README. | Updated pages | Grant number visible. | Must · Done (AP23487777) |
 
 ---
 
@@ -122,6 +122,17 @@ This is the "integrated system into platforms" part of the 3.3 deliverable.
 | F2 | Add a "Publications" section listing the project's papers with DOIs. | Updated docs | All accepted papers listed. | Must · Section added; it fills from `project-data.js`. Papers still to be entered |
 | F3 | Add a privacy notice and data-processing description for institutions. | Updated docs | Reviewed by SDU's data protection contact. | Should · Privacy section and Moodle privacy API done. Review by the data protection contact still to do |
 | F4 | Write a one-page summary of task 3.3 for the final grant report: what was integrated, where it is hosted, usage numbers from the pilot. | Report text | Included in the final report. | Must |
+
+---
+
+## G. AI-generated text (added November 2026)
+
+| ID | Task | Deliverable | Done when | Priority |
+|---|---|---|---|---|
+| G1 | `/v1/ai-detect` endpoint (Binoculars, or a plugged-in classifier) and an "AI text" page on the site. | Code | Endpoint and page work against a stub; maths checked against a direct computation. | Should · Done. Not yet run with the real Qwen models |
+| G2 | Calibrate `AI_THRESHOLD` on texts of known origin in Kazakh, Russian and English (pre-2022 student work and AI answers to the same assignments). Record false-positive rate per language. | Note in `evaluation/` | Threshold set with a false-positive rate below an agreed limit, e.g. 1%. | Should |
+| G3 | If Objective 1 produced a style-based AI detector, export it as a sequence-classification model and serve it with `AI_DETECTOR=classifier`; compare with Binoculars on the G2 set. | Comparison table | The better method is the default. | Should |
+| G4 | Show the AI-text estimate in the Moodle plugin, only after G2. | Plugin update | Teachers see a calibrated estimate beside each submission. | Later |
 
 ---
 
