@@ -136,7 +136,7 @@ details.api[open] summary{margin-bottom:10px}
 .btns{display:flex;gap:8px;flex-wrap:wrap}
 .head-row button{font-size:.85rem;padding:6px 10px}
 @media print{
-  header.top,footer,form.panel,.notice,.project,.intro,.btns,.no-print{display:none!important}
+  header.top,footer,form.panel,.notice,.project,.intro,.btns,.skip,.no-print{display:none!important}
   body{background:#fff;color:#000}
   .view.on .cols{display:block}
   .panel{border:0;padding:0}
@@ -151,7 +151,7 @@ details.api[open] summary{margin-bottom:10px}
 @media (max-width:880px){.docs{grid-template-columns:minmax(0,1fr)}.toc{position:static!important}}
 .toc{position:sticky;top:84px;display:flex;flex-direction:column;gap:2px;font-size:.9rem}
 .toc b{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
-.toc button{text-align:left;border:0;background:none;padding:5px 8px;color:var(--ink);font-weight:400}
+.toc button{text-align:left;width:100%;border:0;background:none;padding:5px 8px;color:var(--ink);font-weight:400}
 .toc button:hover{background:var(--accent-soft)}
 .manual{display:flex;flex-direction:column;gap:34px;max-width:74ch}
 .manual section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:84px}
@@ -162,169 +162,386 @@ pre code{background:none;padding:0;font-size:inherit}
 .ep{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .verb{font-family:var(--mono);font-size:.78rem;font-weight:500;background:var(--accent);color:var(--accent-ink);padding:2px 8px;border-radius:4px}
 footer{border-top:1px solid var(--line);padding:18px 0;font-size:.82rem;color:var(--muted)}
+
+/* language switch, skip link, translated blocks */
+.skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--accent-ink);padding:8px 14px;z-index:10;border-radius:0 0 6px 0;font-weight:600}
+.skip:focus{left:0}
+main:focus{outline:none}
+.langs{display:flex;gap:2px;border:1px solid var(--line);border-radius:6px;padding:2px}
+.langs button{border:0;padding:4px 9px;font-size:.8rem;background:none;border-radius:4px;letter-spacing:.02em}
+.langs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+[data-l]{display:none!important}
+html[lang="en"] [data-l="en"],html[lang="ru"] [data-l="ru"],html[lang="kk"] [data-l="kk"]{display:flex!important;flex-direction:column;gap:12px}
+.blk{display:flex;flex-direction:column;gap:12px}
+.en-only{display:none;font-size:.82rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
+html:not([lang="en"]) .en-only{display:block}
+.stack{display:flex;flex-direction:column;gap:10px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{padding:0;margin-bottom:6px}
+th[scope="row"]{text-transform:none;letter-spacing:0;color:var(--ink);font-size:inherit;white-space:normal}
+tr.grp th{background:var(--accent-soft);color:var(--ink);text-transform:none;letter-spacing:0;font-size:.85rem}
+.pubs{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+pre:focus-visible,.tablebox:focus-visible,.doc:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.about h3,.manual h3{margin-top:6px}
+.status.err{color:var(--crit)}
+main.wrap{padding-top:28px;padding-bottom:64px}
+.top .wrap{gap:8px 16px}
+nav a{padding:7px 10px}
+.toc{top:calc(var(--hh,84px) + 18px)}
+.manual section{scroll-margin-top:calc(var(--hh,84px) + 12px)}
+@media (max-width:600px){.manual section{scroll-margin-top:12px}}
+.pill{white-space:nowrap}
+@media (max-width:520px){.pill{white-space:normal;border-radius:12px}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main" data-t>Skip to the main content</a>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><b>Plagiarism and Authorship Platform</b><span>SDU NLP · Project “Advancing Plagiarism Detection through Contextual Embeddings”</span></div>
-    <nav aria-label="Views">
-      <a href="#check" data-v="check">Similarity check</a>
-      <a href="#authorship" data-v="authorship">Authorship</a>
-      <a href="#docs" data-v="docs">Documentation</a>
-      <a href="#about" data-v="about">About the project</a>
+    <div class="brand"><b data-t>Plagiarism and Authorship Platform</b><span data-t>SDU NLP · Project “Advancing Plagiarism Detection through Contextual Embeddings”</span></div>
+    <nav aria-label="Views" data-ta="aria-label">
+      <a href="#check" data-v="check" data-t>Similarity check</a>
+      <a href="#authorship" data-v="authorship" data-t>Authorship</a>
+      <a href="#docs" data-v="docs" data-t>Documentation</a>
+      <a href="#about" data-v="about" data-t>About the project</a>
     </nav>
+    <div class="langs" role="group" aria-label="Language" data-ta="aria-label">
+      <button type="button" data-lang="en" lang="en" aria-pressed="true" title="English">EN</button>
+      <button type="button" data-lang="kk" lang="kk" aria-pressed="false" title="Қазақша">ҚАЗ</button>
+      <button type="button" data-lang="ru" lang="ru" aria-pressed="false" title="Русский">РУС</button>
+    </div>
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="main" tabindex="-1">
 
 <!-- ================= CHECK ================= -->
 <div class="view" id="v-check">
-  <div class="project"><small>Research project</small><b>Advancing Plagiarism Detection through Contextual Embeddings</b><span class="hint">SDU University, Kaskelen, Kazakhstan · 2024 to 2026 · <a href="#about">About the project</a></span></div>
+  <div class="project"><small data-t>Research project</small><b lang="en">Advancing Plagiarism Detection through Contextual Embeddings</b><span class="hint" data-t="project.hint">SDU University, Kaskelen, Kazakhstan · 2024 to 2026 · <a href="#about">About the project</a></span></div>
   <div class="intro">
-    <h1>Check a submission against sources</h1>
-    <p>Paste a student text and one or more reference texts. The report shows how much of the submission also appears in each source and highlights the matched passages.</p>
+    <h1 data-t>Check a submission against sources</h1>
+    <p data-t="check.lead">Paste a student text and one or more reference texts. The report shows how much of the submission also appears in each source and highlights the matched passages.</p>
   </div>
-  <p class="notice"><b>What runs on this page.</b> The checks here are the lexical baselines (shared word sequences and term overlap) and run entirely in your browser, so no text leaves your device. To add paraphrase detection with contextual embeddings, connect your institution's API server in the form below. See <a href="#docs">Documentation</a>.</p>
+  <p class="notice" data-t="check.notice"><b>What runs on this page.</b> The checks here are the lexical baselines (shared word sequences and term overlap) and run entirely in your browser, so no text leaves your device. To add paraphrase detection with contextual embeddings, connect your institution's API server in the form below. See <a href="#docs">Documentation</a>.</p>
   <div class="cols">
     <form class="panel" id="f-check">
       <div class="field">
-        <div class="field-head"><label for="sub">Submission</label>
-          <span><label class="filebtn">Load a file (.txt, .docx, .pdf)<input type="file" id="sub-file" accept=".txt,.docx,.pdf,text/plain"></label> · <span class="count" id="sub-count"></span></span></div>
+        <div class="field-head"><label for="sub" data-t>Submission</label>
+          <span><label class="filebtn"><span data-t>Load a file (.txt, .docx, .pdf)</span><input type="file" id="sub-file" accept=".txt,.docx,.pdf,text/plain"></label> · <span class="count" id="sub-count"></span></span></div>
         <textarea id="sub" rows="9"></textarea>
       </div>
+      <fieldset class="field">
+        <legend class="lab" data-t>Sources</legend>
+        <div id="sources" class="stack"></div>
+      </fieldset>
       <div class="field">
-        <span class="lab">Sources</span>
-        <div id="sources" style="display:flex;flex-direction:column;gap:10px"></div>
-      </div>
-      <div class="field">
-        <label for="k">Shortest word sequence that counts as a match</label>
-        <div class="row"><select id="k"><option value="3" selected>3 words (most sensitive)</option><option value="4">4 words</option><option value="5">5 words (fewest chance matches)</option></select></div>
+        <label for="k" data-t>Shortest word sequence that counts as a match</label>
+        <div class="row"><select id="k"><option value="3" selected data-t>3 words (most sensitive)</option><option value="4" data-t>4 words</option><option value="5" data-t>5 words (fewest chance matches)</option></select></div>
       </div>
       <details class="api" id="api-box">
-        <summary>Connect to the project API for paraphrase detection (optional)</summary>
+        <summary data-t>Connect to the project API for paraphrase detection (optional)</summary>
         <div class="field" style="gap:10px">
-          <p class="hint">With a connection, each check also sends the texts to your institution's API server, which compares sentences with the contextual embedding model. Without one, nothing leaves your browser. The address must start with https://.</p>
+          <p class="hint" data-t="api.hint">With a connection, each check also sends the texts to your institution's API server, which compares sentences with the contextual embedding model. Without one, nothing leaves your browser. The address must start with https://.</p>
           <div class="api-grid">
-            <div class="field"><label for="api-url">API address</label><input type="text" id="api-url" placeholder="https://plagiarism.example.edu.kz" autocomplete="url"></div>
-            <div class="field"><label for="api-key">API key</label><input type="password" id="api-key" placeholder="If your server needs one" autocomplete="off"></div>
+            <div class="field"><label for="api-url" data-t>API address</label><input type="text" id="api-url" placeholder="https://plagiarism.example.edu.kz" autocomplete="url" inputmode="url"></div>
+            <div class="field"><label for="api-key" data-t>API key</label><input type="password" id="api-key" placeholder="If your server needs one" data-ta="placeholder" autocomplete="off"></div>
           </div>
-          <div class="row"><button type="button" id="api-test">Test connection</button><button type="button" id="api-off">Disconnect</button><span class="status" id="api-status" role="status">Not connected. Checks run in the browser only.</span></div>
+          <div class="row"><button type="button" id="api-test" data-t>Test connection</button><button type="button" id="api-off" data-t>Disconnect</button><span class="status" id="api-status" role="status"></span></div>
         </div>
       </details>
       <div class="row">
-        <button type="submit" class="primary">Run check</button>
-        <button type="button" id="add-src">Add a source</button>
-        <button type="button" id="clear-check">Clear all</button>
-        <span class="hint" id="ex-note">Example texts are loaded.</span>
+        <button type="submit" class="primary" data-t>Run check</button>
+        <button type="button" id="add-src" data-t>Add a source</button>
+        <button type="button" id="clear-check" data-t>Clear all</button>
+        <span class="hint" id="ex-note" role="status"></span>
       </div>
     </form>
-    <div class="panel" id="r-check" aria-live="polite"></div>
+    <section class="panel" id="r-check" aria-live="polite" aria-label="Report" data-ta="aria-label"></section>
   </div>
 </div>
 
 <!-- ================= AUTHORSHIP ================= -->
 <div class="view" id="v-authorship">
   <div class="intro">
-    <h1>Compare writing style</h1>
-    <p>Give a questioned text and writing samples from one or more candidate authors. The report ranks candidates by how closely their style matches the questioned text.</p>
+    <h1 data-t>Compare writing style</h1>
+    <p data-t="auth.lead">Give a questioned text and writing samples from one or more candidate authors. The report ranks candidates by how closely their style matches the questioned text.</p>
   </div>
-  <p class="notice"><b>Read the result as a ranking.</b> This page uses a stylometric baseline (character patterns, function words, sentence and punctuation habits). It needs at least about 150 words per text, and it is evidence for a human reviewer to weigh. It does not decide who wrote a text.</p>
+  <p class="notice" data-t="auth.notice"><b>Read the result as a ranking.</b> This page uses a stylometric baseline (character patterns, function words, sentence and punctuation habits). It needs at least about 150 words per text, and it is evidence for a human reviewer to weigh. It does not decide who wrote a text.</p>
   <div class="cols">
     <form class="panel" id="f-auth">
       <div class="field">
-        <div class="field-head"><label for="q">Questioned text</label><span class="count" id="q-count"></span></div>
+        <div class="field-head"><label for="q" data-t>Questioned text</label><span class="count" id="q-count"></span></div>
         <textarea id="q" rows="8"></textarea>
       </div>
-      <div class="field">
-        <span class="lab">Candidate authors</span>
-        <div id="cands" style="display:flex;flex-direction:column;gap:10px"></div>
-      </div>
+      <fieldset class="field">
+        <legend class="lab" data-t>Candidate authors</legend>
+        <div id="cands" class="stack"></div>
+      </fieldset>
       <div class="row">
-        <button type="submit" class="primary">Compare style</button>
-        <button type="button" id="add-cand">Add a candidate</button>
-        <span class="hint">Example texts are loaded.</span>
+        <button type="submit" class="primary" data-t>Compare style</button>
+        <button type="button" id="add-cand" data-t>Add a candidate</button>
+        <span class="hint" data-t>Example texts are loaded.</span>
       </div>
     </form>
-    <div class="panel" id="r-auth" aria-live="polite"></div>
+    <section class="panel" id="r-auth" aria-live="polite" aria-label="Report" data-ta="aria-label"></section>
   </div>
 </div>
 
 <!-- ================= DOCS ================= -->
 <div class="view" id="v-docs">
   <div class="intro">
-    <h1>Documentation</h1>
-    <p>Open-access guide to using the platform, calling the API, and connecting it to a learning management system.</p>
+    <h1 data-t>Documentation</h1>
+    <p data-t="docs.lead">Open-access guide to using the platform, calling the API, and connecting it to a learning management system.</p>
   </div>
   <div class="docs">
-    <div class="toc" id="toc"><b>On this page</b></div>
+    <nav class="toc" id="toc" aria-label="On this page" data-ta="aria-label"></nav>
     <div class="manual" id="manual">
 
-      <section id="d-overview"><h2>Overview</h2>
-        <p>The platform helps instructors and integrity officers answer two questions about a student text: does it reuse text from known sources, and is its writing style consistent with the claimed author. It was built in the research project <i>Advancing Plagiarism Detection through Contextual Embeddings</i> at SDU NLP, SDU University. See <a href="#about">About the project</a>.</p>
-        <p>It has three parts:</p>
-        <ul>
-          <li><b>This web page.</b> A similarity check and a style comparison that run in the browser with baseline methods. Use it for quick checks and for teaching what the scores mean.</li>
-          <li><b>The API server.</b> A small HTTP service that scores texts with a contextual embedding model. This is the part that detects paraphrased passages. Other systems call it.</li>
-          <li><b>LMS integration.</b> A documented way to call the API from Moodle, Canvas or any other platform when a student submits work.</li>
-        </ul>
+      <section id="d-overview">
+        <div data-l="en"><h2>Overview</h2>
+          <p>The platform helps instructors and integrity officers answer two questions about a student text: does it reuse text from known sources, and is its writing style consistent with the claimed author. It was built in the research project <i>Advancing Plagiarism Detection through Contextual Embeddings</i> at SDU NLP, SDU University. See <a href="#about">About the project</a>.</p>
+          <p>It has three parts:</p>
+          <ul>
+            <li><b>This website.</b> A similarity check and a style comparison that run in the browser with baseline methods. Use it for quick checks and for teaching what the scores mean.</li>
+            <li><b>The API server.</b> A small HTTP service that scores texts with a contextual embedding model. This is the part that detects paraphrased passages. Other systems call it.</li>
+            <li><b>The Moodle plugin.</b> Sends each assignment submission to the API server and shows the result to the teacher in the grading view. Other platforms can call the API in the same way.</li>
+          </ul>
+        </div>
+        <div data-l="ru"><h2>Обзор</h2>
+          <p>Платформа помогает преподавателям и специалистам по академической честности ответить на два вопроса о студенческом тексте: повторяет ли он текст известных источников и соответствует ли его стиль письма заявленному автору. Она создана в исследовательском проекте <i lang="en">Advancing Plagiarism Detection through Contextual Embeddings</i> группой SDU NLP, SDU University. См. раздел <a href="#about">«О проекте»</a>.</p>
+          <p>Платформа состоит из трёх частей:</p>
+          <ul>
+            <li><b>Этот сайт.</b> Проверка сходства и сравнение стиля, которые выполняются в браузере базовыми методами. Подходит для быстрых проверок и для объяснения того, что означают показатели.</li>
+            <li><b>Сервер API.</b> Небольшая HTTP-служба, которая оценивает тексты с помощью модели контекстных эмбеддингов. Именно она находит пересказанные фрагменты. К ней обращаются другие системы.</li>
+            <li><b>Плагин для Moodle.</b> Отправляет каждую сданную работу на сервер API и показывает результат преподавателю на странице оценивания. Другие платформы могут обращаться к API таким же образом.</li>
+          </ul>
+        </div>
+        <div data-l="kk"><h2>Шолу</h2>
+          <p>Платформа оқытушылар мен академиялық адалдық мамандарына студент мәтіні туралы екі сұраққа жауап беруге көмектеседі: мәтін белгілі дереккөздердің мәтінін қайталай ма және оның жазу стилі көрсетілген авторға сәйкес келе ме. Ол SDU University жанындағы SDU NLP тобының <i lang="en">Advancing Plagiarism Detection through Contextual Embeddings</i> зерттеу жобасында жасалған. <a href="#about">«Жоба туралы»</a> бөлімін қараңыз.</p>
+          <p>Платформа үш бөліктен тұрады:</p>
+          <ul>
+            <li><b>Осы сайт.</b> Браузерде базалық әдістермен орындалатын ұқсастық тексеруі және стильді салыстыру. Жылдам тексеруге және көрсеткіштердің мағынасын түсіндіруге ыңғайлы.</li>
+            <li><b>API сервері.</b> Мәтіндерді контекстік эмбеддинг моделімен бағалайтын шағын HTTP қызметі. Басқа сөздермен қайта жазылған үзінділерді дәл осы бөлік табады. Оған басқа жүйелер жүгінеді.</li>
+            <li><b>Moodle плагині.</b> Тапсырылған әрбір жұмысты API серверіне жіберіп, нәтижесін оқытушыға бағалау бетінде көрсетеді. Басқа платформалар да API-ге осылай жүгіне алады.</li>
+          </ul>
+        </div>
       </section>
 
-      <section id="d-quick"><h2>Quick start for instructors</h2>
-        <ol>
-          <li>Open <a href="#check">Similarity check</a>. Paste the student text into <b>Submission</b>.</li>
-          <li>Paste each reference text into a <b>Source</b> box and give it a short name. Use <b>Add a source</b> for more.</li>
-          <li>Select <b>Run check</b>. Read the matched-text share first, then the per-source table, then the highlighted passages. Each highlight carries the number of its source.</li>
-          <li>Use <b>Copy</b>, <b>Download .txt</b> or <b>Print or save PDF</b> to keep the report for a case file.</li>
-          <li>To detect paraphrase, open <b>Connect to the project API</b>, enter your institution's API address and key, and select <b>Test connection</b>. Later checks add a sentence-level comparison by meaning.</li>
-          <li>For a style question, open <a href="#authorship">Authorship</a>, paste the questioned text, add earlier work by the student and by at least one other writer, and select <b>Compare style</b>.</li>
-        </ol>
-        <p>You can load .txt, .docx and text-based .pdf files. Scanned PDFs have no text layer and need OCR first. Texts may be in any language written with spaces between words, including Kazakh, Russian and English. The function-word feature in the style comparison covers English, Russian and Kazakh and is skipped for other languages.</p>
+      <section id="d-quick">
+        <div data-l="en"><h2>Quick start for instructors</h2>
+          <ol>
+            <li>Open <a href="#check">Similarity check</a>. Paste the student text into <b>Submission</b>, or load a file.</li>
+            <li>Paste each reference text into a <b>Source</b> box and give it a short name. Use <b>Add a source</b> for more.</li>
+            <li>Select <b>Run check</b>. Read the matched-text share first, then the per-source table, then the highlighted passages. Each highlight carries the number of its source.</li>
+            <li>Use <b>Copy</b>, <b>Download .txt</b> or <b>Print or save PDF</b> to keep the report for a case file.</li>
+            <li>To detect paraphrase, open <b>Connect to the project API</b>, enter your institution's API address and key, and select <b>Test connection</b>. Later checks add a sentence-level comparison by meaning.</li>
+            <li>For a style question, open <a href="#authorship">Authorship</a>, paste the questioned text, add earlier work by the student and by at least one other writer, and select <b>Compare style</b>.</li>
+          </ol>
+          <p>You can load .txt, .docx and text-based .pdf files. Scanned PDFs have no text layer and need OCR first. Texts may be in any language written with spaces between words, including Kazakh, Russian and English. The function-word feature in the style comparison covers English, Russian and Kazakh and is skipped for other languages.</p>
+          <p>If your institution uses Moodle with the project's plugin, you do not need this website for routine checks: the result appears beside each submission in the grading view.</p>
+        </div>
+        <div data-l="ru"><h2>Краткое руководство для преподавателей</h2>
+          <ol>
+            <li>Откройте <a href="#check">«Проверку сходства»</a>. Вставьте текст студента в поле <b>«Работа»</b> или загрузите файл.</li>
+            <li>Вставьте каждый текст для сравнения в поле <b>«Источник»</b> и дайте ему короткое название. Чтобы добавить ещё, нажмите <b>«Добавить источник»</b>.</li>
+            <li>Нажмите <b>«Проверить»</b>. Сначала посмотрите долю совпавшего текста, затем таблицу по источникам, затем выделенные фрагменты. Рядом с каждым выделением стоит номер источника.</li>
+            <li>Кнопки <b>«Копировать»</b>, <b>«Скачать .txt»</b> и <b>«Печать или PDF»</b> позволяют сохранить отчёт в материалах дела.</li>
+            <li>Чтобы находить пересказ, откройте <b>«Подключиться к API проекта»</b>, введите адрес и ключ API вашего учебного заведения и нажмите <b>«Проверить подключение»</b>. После этого к каждой проверке добавляется сравнение предложений по смыслу.</li>
+            <li>Если вопрос касается стиля, откройте <a href="#authorship">«Авторство»</a>, вставьте спорный текст, добавьте прежние работы студента и хотя бы одного другого автора и нажмите <b>«Сравнить стиль»</b>.</li>
+          </ol>
+          <p>Можно загружать файлы .txt, .docx и .pdf с текстовым слоем. В сканированных PDF текстового слоя нет, их нужно сначала распознать (OCR). Тексты могут быть на любом языке, где слова разделяются пробелами, включая казахский, русский и английский. Признак «служебные слова» при сравнении стиля рассчитан на английский, русский и казахский языки и для других языков не используется.</p>
+          <p>Если в вашем учебном заведении работает Moodle с плагином проекта, для обычных проверок этот сайт не нужен: результат показывается рядом с каждой работой на странице оценивания.</p>
+        </div>
+        <div data-l="kk"><h2>Оқытушыларға арналған қысқаша нұсқаулық</h2>
+          <ol>
+            <li><a href="#check">«Ұқсастықты тексеру»</a> бетін ашыңыз. Студент мәтінін <b>«Жұмыс»</b> өрісіне қойыңыз немесе файл жүктеңіз.</li>
+            <li>Салыстырылатын әрбір мәтінді <b>«Дереккөз»</b> өрісіне қойып, оған қысқа атау беріңіз. Тағы қосу үшін <b>«Дереккөз қосу»</b> түймесін басыңыз.</li>
+            <li><b>«Тексеру»</b> түймесін басыңыз. Алдымен сәйкес келген мәтіннің үлесін, содан кейін дереккөздер кестесін, соңында белгіленген үзінділерді қараңыз. Әр белгінің жанында дереккөздің нөмірі тұрады.</li>
+            <li>Есепті іс материалдарында сақтау үшін <b>«Көшіру»</b>, <b>«.txt жүктеп алу»</b> немесе <b>«Басып шығару немесе PDF»</b> түймелерін қолданыңыз.</li>
+            <li>Қайта баяндалған мәтінді табу үшін <b>«Жоба API-іне қосылу»</b> бөлімін ашып, оқу орныңыздың API мекенжайы мен кілтін енгізіңіз де, <b>«Қосылуды тексеру»</b> түймесін басыңыз. Бұдан кейін әр тексеруге сөйлемдерді мағынасы бойынша салыстыру қосылады.</li>
+            <li>Стильге қатысты сұрақ болса, <a href="#authorship">«Авторлық»</a> бетін ашып, күмәнді мәтінді қойыңыз, студенттің бұрынғы жұмыстарын және кем дегенде тағы бір автордың жұмысын қосыңыз да, <b>«Стильді салыстыру»</b> түймесін басыңыз.</li>
+          </ol>
+          <p>.txt, .docx және мәтін қабаты бар .pdf файлдарын жүктеуге болады. Сканерленген PDF файлдарында мәтін қабаты болмайды, оларды алдымен тану (OCR) қажет. Мәтіндер сөздері бос орынмен бөлінетін кез келген тілде, соның ішінде қазақ, орыс және ағылшын тілдерінде бола алады. Стильді салыстырудағы «көмекші сөздер» белгісі ағылшын, орыс және қазақ тілдеріне есептелген, басқа тілдерде қолданылмайды.</p>
+          <p>Оқу орныңызда жобаның плагині орнатылған Moodle жұмыс істесе, күнделікті тексеру үшін бұл сайттың қажеті жоқ: нәтиже бағалау бетінде әр жұмыстың жанында көрсетіледі.</p>
+        </div>
       </section>
 
-      <section id="d-scores"><h2>How to read the scores</h2>
-        <div class="tablebox"><table>
-          <tr><th>Score</th><th>What it measures</th><th>Where</th></tr>
-          <tr><td><b>Matched text</b></td><td>Share of the submission's words that sit inside a word sequence (three words by default) also found in a source. Catches copied and lightly edited text.</td><td>Page, API (<code>containment</code>)</td></tr>
-          <tr><td><b>Jaccard</b></td><td>Shared three-word sequences divided by all three-word sequences in both texts. Low when the texts differ a lot in length.</td><td>Page, API</td></tr>
-          <tr><td><b>Term cosine</b></td><td>Cosine between the word-count vectors of the two texts. High for texts on the same topic, even with no copying.</td><td>Page</td></tr>
-          <tr><td><b>Longest run</b></td><td>Longest unbroken stretch of matched words.</td><td>Page</td></tr>
-          <tr><td><b>Flagged share</b></td><td>Share of submission sentences whose embedding has a cosine at or above the threshold with some source sentence. Catches paraphrase.</td><td>API</td></tr>
-          <tr><td><b>Style similarity</b></td><td>Combined closeness of two texts in character trigrams, function words and sentence and punctuation habits.</td><td>Page</td></tr>
-        </table></div>
-        <p>The page labels matched text below 15% as low, 15% to 40% as moderate and above 40% as high. These bands are a reading aid. Correctly quoted and cited passages also count as matches, so a reviewer always has to look at the highlighted text before drawing a conclusion.</p>
+      <section id="d-scores">
+        <div data-l="en"><h2>How to read the scores</h2>
+          <div class="tablebox"><table>
+            <tr><th scope="col">Score</th><th scope="col">What it measures</th><th scope="col">Where</th></tr>
+            <tr><th scope="row">Matched text</th><td>Share of the submission's words that sit inside a word sequence (three words by default) also found in a source. Catches copied and lightly edited text.</td><td>Website, API (<code>containment</code>), Moodle report</td></tr>
+            <tr><th scope="row">Jaccard</th><td>Shared three-word sequences divided by all three-word sequences in both texts. Low when the texts differ a lot in length.</td><td>Website, API, Moodle report</td></tr>
+            <tr><th scope="row">Term cosine</th><td>Cosine between the word-count vectors of the two texts. High for texts on the same topic, even with no copying.</td><td>Website</td></tr>
+            <tr><th scope="row">Longest run</th><td>Longest unbroken stretch of matched words.</td><td>Website</td></tr>
+            <tr><th scope="row">Flagged share</th><td>Share of submission sentences whose embedding has a cosine at or above the threshold with some source sentence. Catches paraphrase.</td><td>API, Moodle</td></tr>
+            <tr><th scope="row">Style similarity</th><td>Combined closeness of two texts in character trigrams, function words and sentence and punctuation habits.</td><td>Website</td></tr>
+          </table></div>
+          <p>The website labels matched text below 15% as low, 15% to 40% as moderate and above 40% as high. These bands are a reading aid. Correctly quoted and cited passages also count as matches, so a reviewer always has to look at the highlighted text before drawing a conclusion.</p>
+        </div>
+        <div data-l="ru"><h2>Как читать показатели</h2>
+          <div class="tablebox"><table>
+            <tr><th scope="col">Показатель</th><th scope="col">Что измеряет</th><th scope="col">Где</th></tr>
+            <tr><th scope="row">Совпавший текст</th><td>Доля слов работы, входящих в последовательность слов (по умолчанию из трёх), которая есть и в источнике. Находит скопированный и слегка изменённый текст.</td><td>Сайт, API (<code>containment</code>), отчёт в Moodle</td></tr>
+            <tr><th scope="row">Жаккар</th><td>Число общих последовательностей из трёх слов, делённое на число всех таких последовательностей в обоих текстах. Мал, когда тексты сильно различаются по длине.</td><td>Сайт, API, отчёт в Moodle</td></tr>
+            <tr><th scope="row">Косинус по словам</th><td>Косинус между векторами частот слов двух текстов. Высок для текстов на одну тему даже без заимствований.</td><td>Сайт</td></tr>
+            <tr><th scope="row">Самый длинный фрагмент</th><td>Самая длинная непрерывная цепочка совпавших слов.</td><td>Сайт</td></tr>
+            <tr><th scope="row">Доля отмеченных предложений</th><td>Доля предложений работы, эмбеддинг которых имеет косинус не ниже порога с каким-либо предложением источника. Находит пересказ.</td><td>API, Moodle</td></tr>
+            <tr><th scope="row">Сходство стиля</th><td>Сводная близость двух текстов по триграммам символов, служебным словам и привычкам в построении предложений и пунктуации.</td><td>Сайт</td></tr>
+          </table></div>
+          <p>Сайт называет долю совпавшего текста ниже 15% низкой, от 15% до 40% — умеренной, выше 40% — высокой. Эти границы лишь помогают читать отчёт. Правильно оформленные цитаты тоже считаются совпадением, поэтому проверяющий всегда должен прочитать выделенный текст, прежде чем делать вывод.</p>
+        </div>
+        <div data-l="kk"><h2>Көрсеткіштерді қалай оқу керек</h2>
+          <div class="tablebox"><table>
+            <tr><th scope="col">Көрсеткіш</th><th scope="col">Нені өлшейді</th><th scope="col">Қайда</th></tr>
+            <tr><th scope="row">Сәйкес келген мәтін</th><td>Жұмыстағы сөздердің дереккөзде де кездесетін сөз тізбегіне (әдепкіде үш сөз) кіретін үлесі. Көшірілген және сәл өзгертілген мәтінді табады.</td><td>Сайт, API (<code>containment</code>), Moodle есебі</td></tr>
+            <tr><th scope="row">Жаккар</th><td>Ортақ үш сөзді тізбектер санының екі мәтіндегі барлық осындай тізбектер санына қатынасы. Мәтіндердің ұзындығы қатты ерекшеленсе, мәні төмен болады.</td><td>Сайт, API, Moodle есебі</td></tr>
+            <tr><th scope="row">Сөздер бойынша косинус</th><td>Екі мәтіннің сөз жиілігі векторлары арасындағы косинус. Көшірме болмаса да, бір тақырыптағы мәтіндер үшін жоғары болады.</td><td>Сайт</td></tr>
+            <tr><th scope="row">Ең ұзын үзінді</th><td>Сәйкес келген сөздердің ең ұзын үзіліссіз тізбегі.</td><td>Сайт</td></tr>
+            <tr><th scope="row">Белгіленген сөйлемдер үлесі</th><td>Эмбеддингі дереккөздегі қандай да бір сөйлеммен шектен төмен емес косинус беретін жұмыс сөйлемдерінің үлесі. Қайта баяндалған мәтінді табады.</td><td>API, Moodle</td></tr>
+            <tr><th scope="row">Стиль ұқсастығы</th><td>Екі мәтіннің таңбалар триграммалары, көмекші сөздер және сөйлем құру мен тыныс белгілерін қою дағдылары бойынша жиынтық жақындығы.</td><td>Сайт</td></tr>
+          </table></div>
+          <p>Сайт сәйкес келген мәтіннің үлесін 15%-дан төмен болса — төмен, 15%-дан 40%-ға дейін — орташа, 40%-дан жоғары болса — жоғары деп атайды. Бұл шектер есепті оқуды жеңілдету үшін ғана берілген. Дұрыс рәсімделген дәйексөздер де сәйкестік болып саналады, сондықтан тексеруші қорытынды жасамас бұрын белгіленген мәтінді міндетті түрде оқып шығуы керек.</p>
+        </div>
       </section>
 
-      <section id="d-method"><h2>Method</h2>
+      <section id="d-method"><h2 data-t>Method</h2>
+        <p class="en-only" data-t>This section is available in English only.</p>
         <h3>Lexical baselines</h3>
-        <p>Texts are lower-cased and split into words. Every run of three consecutive words is a shingle. The page lets you raise this to four or five words to ignore short chance matches. Jaccard and matched-text share are computed from the two shingle sets. Term cosine uses raw word counts.</p>
+        <p>Texts are lower-cased and split into words. Every run of three consecutive words is a shingle. The website lets you raise this to four or five words to ignore short chance matches. Jaccard and matched-text share are computed from the two shingle sets. Term cosine uses raw word counts.</p>
         <h3>Contextual embeddings</h3>
         <p>The API splits each text into sentences and encodes every sentence with a transformer sentence encoder. Vectors are normalised, so the dot product of two vectors is their cosine similarity:</p>
         <pre><code>cos(a, b) = (a · b) / (‖a‖ ‖b‖)</code></pre>
         <p>For each submission sentence the API finds the most similar source sentence. A pair at or above the threshold (default 0.80) is returned as a match. Because the encoder represents meaning in context, a reworded sentence still lands close to its original, where the shingle methods see nothing. The second example source on the check page shows this gap: it is a paraphrase and gets a low lexical score.</p>
+        <p>Encoders read a limited number of tokens and silently ignore the rest. The API therefore cuts any sentence longer than 60 words into consecutive parts, so that lists, tables and unpunctuated text are compared in full.</p>
         <h3>Style comparison</h3>
-        <p>On this page, style similarity is a weighted mean of character-trigram cosine (0.5), function-word cosine (0.3) and closeness of seven scalar habits such as mean sentence length and commas per 100 words (0.2). On the API, each author is represented by the mean embedding of their sentences and candidates are ranked by cosine to the questioned text.</p>
+        <p>On the website, style similarity is a weighted mean of character-trigram cosine (0.5), function-word cosine (0.3) and closeness of seven scalar habits such as mean sentence length and commas per 100 words (0.2). On the API, each author is represented by the mean embedding of their sentences and candidates are ranked by cosine to the questioned text.</p>
       </section>
 
-      <section id="d-api"><h2>API reference</h2>
-        <p>The reference server is one Python file, <code>server.py</code>, built with FastAPI. All requests and responses are JSON in UTF-8.</p>
-        <pre><code>pip install fastapi uvicorn sentence-transformers
+      <section id="d-lms"><h2 data-t>Integration with learning platforms</h2>
+        <p class="en-only" data-t>This section is available in English only.</p>
+        <p>The API is stateless, so any platform that can send an HTTP request when a student submits work can use it. The flow is the same everywhere:</p>
+        <ol>
+          <li><b>Trigger.</b> The platform signals that a submission was created or updated.</li>
+          <li><b>Extract.</b> A connector reads the submitted file and converts it to plain text.</li>
+          <li><b>Select sources.</b> The connector gathers the comparison texts.</li>
+          <li><b>Score.</b> The connector posts the submission and sources to <code>/v1/compare</code>.</li>
+          <li><b>Report.</b> The connector stores the response and shows the instructor the flagged share and the matched sentence pairs next to the submission.</li>
+        </ol>
+        <h3>Moodle</h3>
+        <p>The repository contains a Moodle plagiarism plugin, <code>plagiarism_sduembed</code>, in <a href="https://github.com/shiralikadyrov/plagiarism-platform/tree/main/integrations/moodle"><code>integrations/moodle</code></a>. It needs Moodle 4.1 or later and implements the five steps above for assignments:</p>
+        <ul>
+          <li>A teacher switches the check on in the assignment settings. Students see a notice on the submission page.</li>
+          <li>When a student submits a file (.docx, .odt, .txt, .html, and .pdf if <code>pdftotext</code> is installed) or online text, the plugin queues it. A scheduled task sends it to the API every five minutes, so submitting stays fast even when the API is busy or down.</li>
+          <li>Each submission is compared with the latest work of the other students in the same assignment. Earlier submissions are checked again as classmates submit.</li>
+          <li>The grading view shows a line such as “25% of sentences have a close match” beside each submission, with a link to a report of the matched sentence pairs.</li>
+          <li>Only text and numeric submission ids are sent to the API. Names and user ids stay in Moodle. The plugin implements Moodle's privacy API for data export and deletion.</li>
+          <li>The plugin's own interface is available in English, Kazakh and Russian.</li>
+        </ul>
+        <p class="notice" style="margin:0"><b>Status.</b> The plugin is a beta release. Its request and result-merging code is tested against the API server. It has not yet been run in a pilot course; see <a href="#about">About the project</a> for the current state.</p>
+        <h3>Canvas, Blackboard and others</h3>
+        <p>Platforms that support LTI 1.3 can launch an external tool from an assignment. Host a small web application that receives the launch, fetches the submission, calls the API and renders the report. Platforms without LTI can call the API from a nightly script that reads submissions through the platform's own REST API. An LTI tool is planned after the Moodle pilot and is not part of this release.</p>
+      </section>
+
+      <section id="d-admin"><h2 data-t>Installation guide for administrators</h2>
+        <p class="en-only" data-t>This section is available in English only.</p>
+        <p>An institution installs two things: one API server, and the Moodle plugin that calls it. This website needs no installation. Plan for about an hour.</p>
+        <h3>Before you start</h3>
+        <ul>
+          <li>A Linux server on the institution's network that the Moodle server can reach. Python 3.9 or later, or Docker.</li>
+          <li>Enough memory for the model. The default multilingual model is roughly half a gigabyte on disk. A GPU is recommended for large classes; a CPU is enough for single documents.</li>
+          <li>A host name and TLS certificate for the API, for example <code>plagiarism.example.edu.kz</code>.</li>
+          <li>Administrator access to Moodle 4.1 or later, with cron running.</li>
+        </ul>
+        <h3>Step 1. Start the API server</h3>
+        <p>With Docker:</p>
+        <pre><code>git clone https://github.com/shiralikadyrov/plagiarism-platform
+cd plagiarism-platform
+docker build -t plagiarism-api .
+openssl rand -hex 24          # use the output as the API key
+docker run -d --name plagiarism-api --restart unless-stopped \
+  -p 127.0.0.1:8000:8000 -v plagiarism-models:/models \
+  -e API_KEY=PASTE_THE_KEY_HERE \
+  plagiarism-api</code></pre>
+        <p>Without Docker:</p>
+        <pre><code>python3 -m venv venv &amp;&amp; . venv/bin/activate
+pip install -r requirements.txt
+API_KEY=PASTE_THE_KEY_HERE uvicorn server:app --host 127.0.0.1 --port 8000</code></pre>
+        <p>To serve the project's fine-tuned model, set <code>MODEL_NAME</code> to its folder (with Docker, mount the folder with <code>-v /srv/models/sdu:/models/sdu</code> and set <code>-e MODEL_NAME=/models/sdu</code>). All settings are listed in the <a href="#docs" data-jump="d-api">API reference</a>. The first request downloads or loads the model and takes longer than later ones.</p>
+        <h3>Step 2. Put it behind HTTPS</h3>
+        <p>The server listens on localhost only. Publish it through a reverse proxy that adds TLS, limits request size and limits request rate. An nginx example:</p>
+        <pre><code>limit_req_zone $binary_remote_addr zone=plagiarism:10m rate=60r/m;
+
+server {
+    listen 443 ssl;
+    server_name plagiarism.example.edu.kz;
+    ssl_certificate     /etc/ssl/certs/plagiarism.pem;
+    ssl_certificate_key /etc/ssl/private/plagiarism.key;
+
+    client_max_body_size 8m;            # the Moodle plugin sends at most about 1.2 million characters
+
+    location / {
+        limit_req zone=plagiarism burst=40 nodelay;
+        proxy_pass http://127.0.0.1:8000;
+        proxy_read_timeout 600s;        # long documents on a CPU take time
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}</code></pre>
+        <p>If only Moodle calls the API, also restrict access to the Moodle server's address with a firewall rule or an nginx <code>allow</code> line.</p>
+        <h3>Step 3. Check that it answers</h3>
+        <pre><code>curl https://plagiarism.example.edu.kz/health
+curl -H "X-API-Key: PASTE_THE_KEY_HERE" https://plagiarism.example.edu.kz/v1/ping</code></pre>
+        <p>The first command returns the model name and threshold. The second returns <code>{"status":"ok"}</code> if the key is right and <code>401</code> if it is not.</p>
+        <h3>Step 4. Install the Moodle plugin</h3>
+        <ol>
+          <li>Copy the folder <code>integrations/moodle/sduembed</code> from the repository to <code>plagiarism/sduembed</code> in the Moodle code directory, or zip that folder and upload it under <b>Site administration → Plugins → Install plugins</b>.</li>
+          <li>Open <b>Site administration → Notifications</b> and complete the upgrade.</li>
+          <li>Switch on <b>Site administration → Advanced features → Enable plagiarism plugins</b>.</li>
+          <li>Open <b>Site administration → Plugins → Plagiarism → SDU NLP similarity check</b>. Set <b>Enable the plugin</b> to Yes, enter the API address and key, and select <b>Save and test the connection</b>.</li>
+          <li>To check PDF files, install Poppler (<code>apt install poppler-utils</code>) and enter the path to <code>pdftotext</code>.</li>
+          <li>Ask a teacher to set <b>Check submissions for similarity</b> to Yes in one assignment, submit two test essays as two test students, wait for cron, and open the grading view.</li>
+        </ol>
+        <p>The plugin's <a href="https://github.com/shiralikadyrov/plagiarism-platform/blob/main/integrations/moodle/README.md">README</a> explains every setting, the status messages, and what data is sent and stored.</p>
+        <h3>Step 5. Let this website use your server (optional)</h3>
+        <p>Instructors can then paste texts on the <a href="#check">Similarity check</a> page and get the paraphrase check from your server. Start the server with <code>CORS_ORIGINS=https://shiralikadyrov.github.io</code> and give instructors the address and a key. Browsers block calls from an https page to a plain http server, so this needs step 2.</p>
+        <h3>If something does not work</h3>
+        <div class="tablebox"><table>
+          <tr><th scope="col">What you see</th><th scope="col">Likely cause</th></tr>
+          <tr><td>Moodle: “The API server could not be reached”</td><td>A firewall between Moodle and the API, a wrong address, or a certificate the Moodle server does not trust.</td></tr>
+          <tr><td>Moodle: “The API server refused the key”</td><td>The key in the plugin settings differs from <code>API_KEY</code> on the server.</td></tr>
+          <tr><td>Submissions stay on “waiting to be checked”</td><td>Moodle cron is not running, or the scheduled task <i>Send queued submissions to the similarity API</i> is disabled.</td></tr>
+          <tr><td>“this file type cannot be read” for PDF files</td><td>The path to <code>pdftotext</code> is not set, or the PDF is a scan without a text layer.</td></tr>
+          <tr><td>Website: “Could not reach the API”</td><td>The site's address is missing from <code>CORS_ORIGINS</code>, or the API is served over plain http.</td></tr>
+          <tr><td><code>413</code> from the proxy</td><td>The request is larger than <code>client_max_body_size</code>.</td></tr>
+          <tr><td>The first check is very slow</td><td>The model is being downloaded or loaded. Later checks are faster.</td></tr>
+        </table></div>
+      </section>
+
+      <section id="d-api"><h2 data-t>API reference</h2>
+        <p class="en-only" data-t>This section is available in English only.</p>
+        <p>The reference server is one Python file, <code>server.py</code>, built with FastAPI. All requests and responses are JSON in UTF-8. A running server also serves interactive documentation at <code>/docs</code>.</p>
+        <pre><code>pip install -r requirements.txt
 uvicorn server:app --host 0.0.0.0 --port 8000</code></pre>
         <div class="tablebox"><table>
-          <tr><th>Setting</th><th>Meaning</th><th>Default</th></tr>
+          <tr><th scope="col">Setting</th><th scope="col">Meaning</th><th scope="col">Default</th></tr>
           <tr><td><code>MODEL_NAME</code></td><td>Sentence encoder for <code>/v1/compare</code>. Set it to the path of the project's fine-tuned model.</td><td><code>paraphrase-multilingual-MiniLM-L12-v2</code></td></tr>
           <tr><td><code>STYLE_MODEL_NAME</code></td><td>Encoder for <code>/v1/authorship</code>. A general sentence model mostly captures topic, so set this to the project's style model.</td><td>same as <code>MODEL_NAME</code></td></tr>
           <tr><td><code>SIM_THRESHOLD</code></td><td>Cosine at or above which a sentence pair is flagged.</td><td><code>0.80</code></td></tr>
-          <tr><td><code>API_KEY</code></td><td>If set, every POST must carry it in the <code>X-API-Key</code> header.</td><td>not set</td></tr>
+          <tr><td><code>API_KEY</code></td><td>If set, every <code>/v1</code> request must carry it in the <code>X-API-Key</code> header.</td><td>not set</td></tr>
           <tr><td><code>CORS_ORIGINS</code></td><td>Comma-separated browser origins allowed to call the API.</td><td>none</td></tr>
+          <tr><td><code>ENCODE_BATCH</code></td><td>Sentences encoded per batch. Lower it if the GPU runs out of memory.</td><td><code>32</code></td></tr>
+          <tr><td><code>MAX_SENT_WORDS</code></td><td>A sentence longer than this is split into parts before encoding.</td><td><code>60</code></td></tr>
         </table></div>
 
         <div class="ep"><span class="verb">GET</span><code>/health</code></div>
-        <p>Returns the server status, the loaded model names and the threshold.</p>
+        <p>Returns the server status and version, the loaded model names, the threshold, whether a key is required, and the size limits. Needs no key.</p>
+
+        <div class="ep"><span class="verb">GET</span><code>/v1/ping</code></div>
+        <p>Returns <code>{"status":"ok"}</code> if the <code>X-API-Key</code> header is accepted. Connectors use it to test their settings without sending text.</p>
 
         <div class="ep"><span class="verb">POST</span><code>/v1/compare</code></div>
-        <p>Compares one submission with 1 to 50 sources. <code>threshold</code> is optional.</p>
+        <p>Compares one submission with 1 to 50 sources. <code>threshold</code> is optional. Each text may be up to 200,000 characters.</p>
         <pre><code>curl -X POST http://localhost:8000/v1/compare \
   -H "Content-Type: application/json" \
   -H "X-API-Key: YOUR_KEY" \
@@ -354,7 +571,7 @@ uvicorn server:app --host 0.0.0.0 --port 8000</code></pre>
         <p class="hint">The numbers above show the response shape. They are not measured results.</p>
 
         <div class="ep"><span class="verb">POST</span><code>/v1/authorship</code></div>
-        <p>Ranks candidate authors by style similarity to a questioned text.</p>
+        <p>Ranks 1 to 50 candidate authors by style similarity to a questioned text. Each candidate has 1 to 50 samples.</p>
         <pre><code>{
   "questioned": "Text whose authorship is in question ...",
   "candidates": [
@@ -374,7 +591,7 @@ uvicorn server:app --host 0.0.0.0 --port 8000</code></pre>
         <h3>Errors</h3>
         <ul>
           <li><code>401</code>: the <code>X-API-Key</code> header is missing or wrong.</li>
-          <li><code>422</code>: the body is malformed, a text exceeds 200,000 characters, or a text has no sentence of three or more words.</li>
+          <li><code>422</code>: the body is malformed, a text exceeds 200,000 characters, there are more than 50 sources, or a text has no sentence of three or more words.</li>
         </ul>
 
         <h3>Python client</h3>
@@ -391,65 +608,94 @@ report = r.json()
 print(report["overall_flagged_share"])
 for m in report["sources"][0]["matches"]:
     print(round(m["cosine"], 2), m["submission_sentence"])</code></pre>
+        <h3>Tests</h3>
+        <p>The repository has a test suite that replaces the model with a small stub, so it runs in seconds without a GPU: <code>pip install -r requirements-dev.txt &amp;&amp; pytest</code>.</p>
       </section>
 
-      <section id="d-lms"><h2>Connecting a learning management system</h2>
-        <p>The API is stateless, so any platform that can send an HTTP request when a student submits work can use it. The flow is the same everywhere:</p>
-        <ol>
-          <li><b>Trigger.</b> The LMS signals that a submission was created or updated.</li>
-          <li><b>Extract.</b> A connector reads the submitted file and converts it to plain text.</li>
-          <li><b>Select sources.</b> The connector gathers the comparison texts: other submissions to the same assignment, the institution's archive, and any course readings.</li>
-          <li><b>Score.</b> The connector posts the submission and sources to <code>/v1/compare</code>.</li>
-          <li><b>Report.</b> The connector stores the response and shows the instructor the flagged share and the matched sentence pairs next to the submission.</li>
-        </ol>
-        <h3>Moodle</h3>
-        <p>Moodle provides a plugin type for this purpose, <code>plagiarism</code>. A plagiarism plugin receives assignment submissions through Moodle's event system, can queue work as a scheduled task, and can add a link or score beside each submission in the grading view. Implement steps 2 to 5 inside the plugin's task and keep the API address and key in the plugin's admin settings.</p>
-        <h3>Canvas, Blackboard and others</h3>
-        <p>Platforms that support LTI 1.3 can launch an external tool from an assignment. Host a small web application that receives the launch, fetches the submission, calls the API and renders the report. Platforms without LTI can call the API from a nightly script that reads submissions through the platform's own REST API.</p>
-        <h3>Deployment checklist</h3>
-        <ul>
-          <li>Run the server on institutional infrastructure and serve it over HTTPS behind a reverse proxy.</li>
-          <li>Set <code>API_KEY</code> and give each connecting system its own network rule.</li>
-          <li>A GPU is recommended for large batches. The default model also runs on a CPU for single documents.</li>
-          <li>Send long documents in parts of up to 200,000 characters.</li>
-          <li>To let this website call your server from the browser, start it with <code>CORS_ORIGINS=https://shiralikadyrov.github.io</code>. Browsers block calls from an https page to a plain http server, so the API must be served over HTTPS.</li>
-        </ul>
+      <section id="d-eval"><h2 data-t>Evaluation results</h2>
+        <div id="eval-box" class="blk"></div>
       </section>
 
-      <section id="d-privacy"><h2>Privacy and responsible use</h2>
-        <ul>
-          <li>This web page processes text in the browser. It sends nothing to a server unless you connect it to an API, and then only to the address you enter. It remembers that address on your device and never stores your texts or API key.</li>
-          <li>The reference API server does not write request texts to disk. Institutions that add logging or an archive should tell students and follow their data protection rules.</li>
-          <li>Replace student names with pseudonymous identifiers in <code>id</code> fields.</li>
-          <li>A score is a prompt for review. Decisions about misconduct belong to people who have read the passages and heard the student.</li>
-        </ul>
+      <section id="d-privacy">
+        <div data-l="en"><h2>Privacy and responsible use</h2>
+          <ul>
+            <li>This website processes text in the browser. It sends nothing to a server unless you connect it to an API, and then only to the address you enter. It remembers that address and your language choice on your device and never stores your texts or API key.</li>
+            <li>The reference API server does not write request texts to disk. Institutions that add logging or an archive should tell students and follow their data protection rules.</li>
+            <li>The Moodle plugin sends submission text with numeric submission ids only. It stores the score and the matched sentences in Moodle, and removes them on a data deletion request.</li>
+            <li>Replace student names with pseudonymous identifiers in <code>id</code> fields when you call the API yourself.</li>
+            <li>A score is a prompt for review. Decisions about misconduct belong to people who have read the passages and heard the student.</li>
+          </ul>
+        </div>
+        <div data-l="ru"><h2>Конфиденциальность и ответственное использование</h2>
+          <ul>
+            <li>Этот сайт обрабатывает текст в браузере. Он ничего не отправляет на сервер, пока вы не подключите его к API, и тогда отправляет только по указанному вами адресу. Сайт запоминает на вашем устройстве этот адрес и выбранный язык и никогда не сохраняет ваши тексты и ключ API.</li>
+            <li>Эталонный сервер API не записывает тексты запросов на диск. Учебные заведения, которые добавляют журналирование или архив, должны сообщить об этом студентам и соблюдать свои правила защиты данных.</li>
+            <li>Плагин для Moodle отправляет текст работ только с числовыми идентификаторами работ. Он хранит в Moodle результат и совпавшие предложения и удаляет их по запросу на удаление данных.</li>
+            <li>Если вы обращаетесь к API самостоятельно, заменяйте имена студентов псевдонимными идентификаторами в полях <code>id</code>.</li>
+            <li>Показатель — это повод для проверки. Решение о нарушении принимают люди, которые прочитали фрагменты и выслушали студента.</li>
+          </ul>
+        </div>
+        <div data-l="kk"><h2>Құпиялылық және жауапты қолдану</h2>
+          <ul>
+            <li>Бұл сайт мәтінді браузерде өңдейді. API-ге қоспайынша ол серверге ештеңе жібермейді, ал қосылғаннан кейін тек сіз енгізген мекенжайға жібереді. Сайт сол мекенжайды және таңдалған тілді құрылғыңызда есте сақтайды, ал мәтіндеріңіз бен API кілтін ешқашан сақтамайды.</li>
+            <li>Эталондық API сервері сұраныс мәтіндерін дискіге жазбайды. Журнал жүргізуді немесе мұрағатты қосатын оқу орындары бұл туралы студенттерге хабарлап, деректерді қорғау ережелерін сақтауы керек.</li>
+            <li>Moodle плагині жұмыс мәтінін тек жұмыстың сандық идентификаторымен жібереді. Ол нәтиже мен сәйкес келген сөйлемдерді Moodle-да сақтайды және деректерді жою туралы сұраныс бойынша оларды өшіреді.</li>
+            <li>API-ге өзіңіз жүгінсеңіз, <code>id</code> өрістерінде студенттердің аты-жөнін бүркеншік идентификаторлармен алмастырыңыз.</li>
+            <li>Көрсеткіш — қарап шығуға негіз ғана. Тәртіп бұзу туралы шешімді үзінділерді оқыған және студентті тыңдаған адамдар қабылдайды.</li>
+          </ul>
+        </div>
       </section>
 
-      <section id="d-limits"><h2>Known limitations</h2>
-        <ul>
-          <li>The browser checks miss paraphrase and translation. Use the API for those.</li>
-          <li>Short texts give unstable scores. Treat anything under about 150 words with caution.</li>
-          <li>Languages written without spaces between words are not tokenised correctly on this page.</li>
-          <li>Style comparison is affected by topic and genre. Compare texts of the same kind where possible.</li>
-          <li>The check only finds overlap with the sources supplied. It does not search the web.</li>
-        </ul>
+      <section id="d-limits">
+        <div data-l="en"><h2>Known limitations</h2>
+          <ul>
+            <li>The browser checks miss paraphrase and translation. Use the API for those.</li>
+            <li>Short texts give unstable scores. Treat anything under about 150 words with caution.</li>
+            <li>Languages written without spaces between words are not tokenised correctly on this website.</li>
+            <li>Style comparison is affected by topic and genre. Compare texts of the same kind where possible.</li>
+            <li>The check only finds overlap with the sources supplied. It does not search the web. The Moodle plugin compares submissions within one assignment only.</li>
+            <li>The Kazakh and Russian function-word lists and interface translations are awaiting review by native-speaker linguists.</li>
+          </ul>
+        </div>
+        <div data-l="ru"><h2>Известные ограничения</h2>
+          <ul>
+            <li>Проверки в браузере не находят пересказ и перевод. Для этого используйте API.</li>
+            <li>Короткие тексты дают неустойчивые показатели. К текстам короче примерно 150 слов относитесь с осторожностью.</li>
+            <li>Языки, в которых слова не разделяются пробелами, на этом сайте разбиваются на слова неправильно.</li>
+            <li>На сравнение стиля влияют тема и жанр. По возможности сравнивайте тексты одного типа.</li>
+            <li>Проверка находит совпадения только с предоставленными источниками. Поиск в интернете не выполняется. Плагин для Moodle сравнивает работы только в пределах одного задания.</li>
+            <li>Списки служебных слов казахского и русского языков и перевод интерфейса ожидают проверки лингвистами — носителями языка.</li>
+          </ul>
+        </div>
+        <div data-l="kk"><h2>Белгілі шектеулер</h2>
+          <ul>
+            <li>Браузердегі тексерулер қайта баяндауды және аударманы таппайды. Ол үшін API қолданыңыз.</li>
+            <li>Қысқа мәтіндер тұрақсыз көрсеткіштер береді. Шамамен 150 сөзден қысқа мәтіндерге сақтықпен қараңыз.</li>
+            <li>Сөздері бос орынмен бөлінбейтін тілдердегі мәтіндер бұл сайтта сөздерге дұрыс бөлінбейді.</li>
+            <li>Стильді салыстыруға тақырып пен жанр әсер етеді. Мүмкіндігінше бір түрдегі мәтіндерді салыстырыңыз.</li>
+            <li>Тексеру тек берілген дереккөздермен сәйкестікті табады. Интернеттен іздеу жүргізілмейді. Moodle плагині жұмыстарды тек бір тапсырма шегінде салыстырады.</li>
+            <li>Қазақ және орыс тілдерінің көмекші сөздер тізімдері мен интерфейс аудармасы тіл мамандарының тексеруін күтуде.</li>
+          </ul>
+        </div>
       </section>
 
-      <section id="d-cite"><h2>Source, licence and citation</h2>
+      <section id="d-cite"><h2 data-t>Source, licence and citation</h2>
         <dl class="facts">
-          <dt>Source code</dt><dd><a href="https://github.com/shiralikadyrov/plagiarism-platform">github.com/shiralikadyrov/plagiarism-platform</a></dd>
-          <dt>Website</dt><dd><a href="https://shiralikadyrov.github.io/plagiarism-platform/">shiralikadyrov.github.io/plagiarism-platform</a></dd>
-          <dt>Licence</dt><dd>Code under the MIT licence. Documentation under Creative Commons Attribution 4.0 (CC BY 4.0).</dd>
+          <dt data-t>Source code</dt><dd><a href="https://github.com/shiralikadyrov/plagiarism-platform">github.com/shiralikadyrov/plagiarism-platform</a></dd>
+          <dt data-t>Website</dt><dd><a href="https://shiralikadyrov.github.io/plagiarism-platform/">shiralikadyrov.github.io/plagiarism-platform</a></dd>
+          <dt data-t>Licence</dt><dd data-t="cite.licence">Code under the MIT licence; the Moodle plugin under GNU GPL v3 or later, as Moodle requires. Documentation under Creative Commons Attribution 4.0 (CC BY 4.0).</dd>
+          <dt data-t>Models</dt><dd id="models-box"></dd>
+          <dt>DOI</dt><dd id="doi-box"></dd>
         </dl>
-        <p>To cite the platform:</p>
-        <pre><code>Kadyrov, S., et al. (2026). Plagiarism and Authorship Platform (Version 1.0.0)
+        <p data-t>To cite the platform:</p>
+        <pre><code id="cite-text">Kadyrov, S., et al. (2026). Plagiarism and Authorship Platform (Version 1.0.0)
 [Computer software]. SDU NLP, SDU University.
 https://github.com/shiralikadyrov/plagiarism-platform</code></pre>
-        <p class="hint">The repository includes a CITATION.cff file, so GitHub's "Cite this repository" button gives the same reference in APA and BibTeX.</p>
+        <p class="hint" data-t="cite.cff">The repository includes a CITATION.cff file, so GitHub's "Cite this repository" button gives the same reference in APA and BibTeX.</p>
       </section>
 
-      <section id="d-pubs"><h2>Publications</h2>
-        <p>Peer-reviewed papers from the project are listed here with their DOIs as they are published.</p>
+      <section id="d-pubs"><h2 data-t>Publications</h2>
+        <div id="pubs-box" class="blk"></div>
       </section>
     </div>
   </div>
@@ -458,62 +704,111 @@ https://github.com/shiralikadyrov/plagiarism-platform</code></pre>
 <!-- ================= ABOUT ================= -->
 <div class="view" id="v-about">
   <div class="intro">
-    <p class="hint">Research project</p>
-    <h1>Advancing Plagiarism Detection through Contextual Embeddings</h1>
-    <p>This platform is the public output of task 3.3, User-Friendly Integration and Documentation.</p>
+    <p class="hint" data-t>Research project</p>
+    <h1 lang="en">Advancing Plagiarism Detection through Contextual Embeddings</h1>
+    <p data-t="about.lead">This platform is the public output of task 3.3, User-Friendly Integration and Documentation: the project's system made usable inside educational platforms, with open-access documentation.</p>
   </div>
   <div class="about">
     <section>
       <dl class="facts">
-        <dt>Host organisation</dt><dd>SDU University (Suleyman Demirel University), Kaskelen, Kazakhstan</dd>
-        <dt>Research group</dt><dd>SDU NLP</dd>
-        <dt>Principal investigator</dt><dd>Shirali Kadyrov, PhD, Professor</dd>
-        <dt>Project period</dt><dd>1 January 2024 to 31 December 2026 (36 months)</dd>
-        <dt>Funding</dt><dd>Grant funding for scientific and scientific-technical projects. The grant number will be added by the project team.</dd>
+        <dt data-t>Host organisation</dt><dd data-t>SDU University (Suleyman Demirel University), Kaskelen, Kazakhstan</dd>
+        <dt data-t>Research group</dt><dd>SDU NLP</dd>
+        <dt data-t>Principal investigator</dt><dd data-t>Shirali Kadyrov, PhD, Professor</dd>
+        <dt data-t>Project period</dt><dd data-t>1 January 2024 to 31 December 2026 (36 months)</dd>
+        <dt data-t>Funding</dt><dd><span data-t>Grant funding for scientific and scientific-technical projects.</span> <span id="grant-box"></span></dd>
       </dl>
     </section>
-    <section><h2>Goal</h2>
-      <p>To improve plagiarism detection by integrating contextual embeddings from transformer language models, so that a detector understands similarity of meaning and writing style and is not limited to matching identical strings.</p>
+    <section><h2 data-t>Goal</h2>
+      <p data-t="about.goal">To improve plagiarism detection by integrating contextual embeddings from transformer language models, so that a detector understands similarity of meaning and writing style and is not limited to matching identical strings.</p>
     </section>
-    <section><h2>Objectives</h2>
+    <section><h2 data-t>Objectives</h2>
       <ul>
-        <li><b>Objective 1.</b> Develop contextual embedding models for a style-based AI detector.</li>
-        <li><b>Objective 2.</b> Integrate contextual embeddings into plagiarism detection algorithms such as Jaccard and cosine similarity.</li>
-        <li><b>Objective 3.</b> Validate and optimise the system with an academic corpus, and make it available to educational platforms with open documentation.</li>
+        <li data-t="about.o1"><b>Objective 1.</b> Develop contextual embedding models for a style-based AI detector.</li>
+        <li data-t="about.o2"><b>Objective 2.</b> Integrate contextual embeddings into plagiarism detection algorithms such as Jaccard and cosine similarity.</li>
+        <li data-t="about.o3"><b>Objective 3.</b> Validate and optimise the system with an academic corpus, and make it available to educational platforms with open documentation.</li>
       </ul>
     </section>
-    <section><h2>Work plan</h2>
+    <section><h2 data-t>What task 3.3 delivers</h2>
+      <p data-t="about.deliv">The task has two expected results: the system integrated into educational platforms, and open-access documentation. The table shows each part and its current state.</p>
       <div class="tablebox"><table>
-        <tr><th>Task</th><th>Title</th><th>Period</th></tr>
-        <tr><td>1.1</td><td>Dataset collection and preprocessing</td><td>Jan to Jun 2024</td></tr>
-        <tr><td>1.2</td><td>Model training and optimisation for plagiarism detection</td><td>Jul to Dec 2024</td></tr>
-        <tr><td>1.3</td><td>Technological readiness assessment</td><td>Jan to Mar 2025</td></tr>
-        <tr><td>2.1</td><td>Algorithm compatibility analysis</td><td>Apr to Jun 2025</td></tr>
-        <tr><td>2.2</td><td>Integration development and testing</td><td>Jul to Sep 2025</td></tr>
-        <tr><td>2.3</td><td>Adaptability assessment</td><td>Oct to Dec 2025</td></tr>
-        <tr><td>3.1</td><td>Collaborative partnership establishment</td><td>Jan to Mar 2026</td></tr>
-        <tr><td>3.2</td><td>System validation in real-world settings</td><td>Apr to Jun 2026</td></tr>
-        <tr class="here"><td>3.3</td><td><b>User-friendly integration and documentation</b><div class="hint">This platform and its documentation</div></td><td>Jul to Dec 2026</td></tr>
+        <tr><th scope="col" data-t>Part</th><th scope="col" data-t>What it is</th><th scope="col" data-t>State</th></tr>
+        <tr><th scope="row" data-t>Website</th><td data-t="about.d1">Similarity check and authorship comparison in the browser, in English, Kazakh and Russian. Reads .txt, .docx and .pdf, and exports reports.</td><td><span class="pill ok" data-t>Open to everyone</span></td></tr>
+        <tr><th scope="row" data-t>API server</th><td data-t="about.d2">HTTP service that serves the contextual embedding models to other systems. Comes with automated tests, a container image definition and a deployment guide.</td><td><span class="pill ok" data-t>Source code published</span></td></tr>
+        <tr><th scope="row" data-t>Moodle plugin</th><td data-t="about.d3">Checks assignment submissions against classmates' work and shows the result in the grading view. Interface in three languages.</td><td><span class="pill warn" data-t>Beta, awaiting pilot</span></td></tr>
+        <tr><th scope="row" data-t>Documentation</th><td data-t="about.d4">Instructor guide, score guide, method, API reference and installation guide for administrators, under CC BY 4.0.</td><td><span class="pill ok" data-t>Open access</span></td></tr>
+      </table></div>
+      <h3 data-t>Where it is in use</h3>
+      <div id="pilot-box" class="blk"></div>
+    </section>
+    <section><h2 data-t>Work plan</h2>
+      <div class="tablebox"><table>
+        <tr><th scope="col" data-t>Task</th><th scope="col" data-t>Title</th><th scope="col" data-t>Period</th></tr>
+        <tr><td>1.1</td><td data-t>Dataset collection and preprocessing</td><td data-t>Jan to Jun 2024</td></tr>
+        <tr><td>1.2</td><td data-t>Model training and optimisation for plagiarism detection</td><td data-t>Jul to Dec 2024</td></tr>
+        <tr><td>1.3</td><td data-t>Technological readiness assessment</td><td data-t>Jan to Mar 2025</td></tr>
+        <tr><td>2.1</td><td data-t>Algorithm compatibility analysis</td><td data-t>Apr to Jun 2025</td></tr>
+        <tr><td>2.2</td><td data-t>Integration development and testing</td><td data-t>Jul to Sep 2025</td></tr>
+        <tr><td>2.3</td><td data-t>Adaptability assessment</td><td data-t>Oct to Dec 2025</td></tr>
+        <tr><td>3.1</td><td data-t>Collaborative partnership establishment</td><td data-t>Jan to Mar 2026</td></tr>
+        <tr><td>3.2</td><td data-t>System validation in real-world settings</td><td data-t>Apr to Jun 2026</td></tr>
+        <tr class="here"><td>3.3</td><td><b data-t>User-friendly integration and documentation</b><div class="hint" data-t>This platform and its documentation</div></td><td data-t>Jul to Dec 2026</td></tr>
       </table></div>
     </section>
-    <section><h2>How the platform relates to the project</h2>
+    <section><h2 data-t>How the platform relates to the project</h2>
       <ul>
-        <li>The <a href="#check">similarity check</a> exposes the baseline algorithms from Objective 2 in a form instructors can use without installing anything.</li>
-        <li>The API server described in the <a href="#docs">documentation</a> is where the project's embedding models from Objective 1 are loaded and served to other systems.</li>
-        <li>The <a href="#authorship">authorship view</a> gives a first, transparent reading of writing style, the second research line of the project.</li>
+        <li data-t="about.r1">The <a href="#check">similarity check</a> exposes the baseline algorithms from Objective 2 in a form instructors can use without installing anything.</li>
+        <li data-t="about.r2">The API server described in the <a href="#docs">documentation</a> is where the project's embedding models from Objective 1 are loaded and served to other systems.</li>
+        <li data-t="about.r3">The <a href="#authorship">authorship view</a> gives a first, transparent reading of writing style, the second research line of the project.</li>
+        <li data-t="about.r4">The Moodle plugin carries the validated system from Objective 3 into the platform where instructors already grade.</li>
       </ul>
     </section>
   </div>
 </div>
 
 </main>
-<footer><div class="wrap">Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP, SDU University. <a href="https://github.com/shiralikadyrov/plagiarism-platform">Source code</a> · <a href="#docs">Documentation</a> · Scores support human review and do not replace it.</div></footer>
+<footer><div class="wrap"><span data-t="footer">Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP, SDU University. <a href="https://github.com/shiralikadyrov/plagiarism-platform">Source code</a> · <a href="#docs">Documentation</a> · Scores support human review and do not replace it.</span></div></footer>
 
+<script src="project-data.js"></script>
+<script src="i18n.js"></script>
 <script>
 "use strict";
+/* ---------- language ---------- */
+const I18N=window.I18N||{},PD=window.PROJECT_DATA||{};
+const LANGS=["en","kk","ru"];
+let LANG="en";
+const norm=s=>s.replace(/\s+/g," ").trim();
+/* T("English text with {name}", {name:value}). The English text is the dictionary key. */
+function T(s,v){let o=(LANG!=="en"&&I18N[LANG]&&I18N[LANG][s])||(I18N.en&&I18N.en[s])||s;if(v)o=o.replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m);return o;}
+function applyLang(root){
+  const d=LANG==="en"?null:I18N[LANG]||{};
+  for(const el of (root||document).querySelectorAll("[data-t]")){
+    if(el._en===undefined)el._en=el.innerHTML;
+    const tr=d&&d[el.getAttribute("data-t")||norm(el._en)];
+    el.innerHTML=tr||el._en;
+    if(d&&!tr)el.setAttribute("lang","en");else el.removeAttribute("lang");
+  }
+  for(const el of (root||document).querySelectorAll("[data-ta]")){
+    const a=el.getAttribute("data-ta");
+    if(el._ena===undefined)el._ena=el.getAttribute(a);
+    el.setAttribute(a,(d&&d[el._ena])||el._ena);
+  }
+}
+const store={get:k=>{try{return localStorage.getItem(k)||"";}catch(e){return "";}},set:(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k);}catch(e){}}};
+function setLang(l,save){
+  LANG=LANGS.includes(l)?l:"en";
+  document.documentElement.lang=LANG;
+  if(save)store.set("pp-lang",LANG);
+  for(const b of document.querySelectorAll(".langs button"))b.setAttribute("aria-pressed",String(b.dataset.lang===LANG));
+  applyLang();
+  document.title=T("SDU NLP Plagiarism and Authorship Platform");
+  buildToc();renderProject();renderStatus();renderNote();subCount();qCount();
+  runCheck(true);runAuth();
+  headerHeight();
+}
+
 /* ---------- text utilities ---------- */
 const WORD=/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
-const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pct=x=>(100*x).toFixed(1)+"%";
 function tokens(t){const o=[];for(const m of t.matchAll(WORD))o.push({w:m[0].toLowerCase(),s:m.index,e:m.index+m[0].length});return o;}
 function counts(arr){const m=new Map();for(const x of arr)m.set(x,(m.get(x)||0)+1);return m;}
@@ -551,48 +846,52 @@ function highlight(text,tok,owner){
   return out+esc(text.slice(pos));
 }
 const $=id=>document.getElementById(id);
+const FILE_LABEL=`<label class="filebtn"><span data-t>Load a file (.txt, .docx, .pdf)</span><input type="file" accept=".txt,.docx,.pdf,text/plain"></label>`;
 let srcN=0;
 function addSource(name,text){
   srcN++;const d=document.createElement("div");d.className="src";
-  d.innerHTML=`<div class="src-head"><input type="text" id="src-name-${srcN}" aria-label="Source name" value="${esc(name||"Source "+srcN)}"><button type="button" class="x" aria-label="Remove this source">Remove</button></div><textarea id="src-text-${srcN}" rows="5" aria-label="Source text"></textarea><label class="filebtn">Load a file (.txt, .docx, .pdf)<input type="file" id="src-file-${srcN}" accept=".txt,.docx,.pdf,text/plain"></label>`;
+  d.innerHTML=`<div class="src-head"><input type="text" id="src-name-${srcN}" aria-label="Source name" data-ta="aria-label"><button type="button" class="x" data-t>Remove</button></div><textarea id="src-text-${srcN}" rows="5" aria-label="Source text" data-ta="aria-label"></textarea>${FILE_LABEL}`;
+  d.querySelector("input").value=name||T("Source {n}",{n:srcN});
   d.querySelector("textarea").value=text||"";
-  d.querySelector("button").onclick=()=>d.remove();
-  readTxt(d.querySelector("input[type=file]"),d.querySelector("textarea"));
-  $("sources").appendChild(d);
+  d.querySelector("button").onclick=()=>{d.remove();$("add-src").focus();};
+  readFile(d.querySelector("input[type=file]"),d.querySelector("textarea"));
+  applyLang(d);$("sources").appendChild(d);return d;
 }
-let lastReport="";
-function runCheck(){
+let lastReport="",lastApi=null;
+function runCheck(keepApi){
   K=+$("k").value;
-  const sub=$("sub").value,srcs=[...$("sources").children].map(d=>({name:d.querySelector("input").value.trim()||"Unnamed source",text:d.querySelector("textarea").value})).filter(s=>s.text.trim());
+  const sub=$("sub").value,srcs=[...$("sources").children].map(d=>({name:d.querySelector("input").value.trim()||T("Unnamed source"),text:d.querySelector("textarea").value})).filter(s=>s.text.trim());
   const box=$("r-check"),n=tokens(sub).length;
-  if(n<K||!srcs.length){lastReport="";box.innerHTML=`<h2>Report</h2><p class="hint">Enter a submission of at least ${K} words and at least one source, then select Run check.</p>`;return;}
-  const r=compareTexts(sub,srcs),band=r.matched<.15?["ok","Low overlap"]:r.matched<=.4?["warn","Moderate overlap"]:["crit","High overlap"];
+  if(n<K||!srcs.length){lastReport="";lastApi=null;box.innerHTML=`<h2>${T("Report")}</h2><p class="hint">${T("Enter a submission of at least {k} words and at least one source, then select Run check.",{k:K})}</p>`;return;}
+  const r=compareTexts(sub,srcs),band=r.matched<.15?["ok",T("Low overlap")]:r.matched<=.4?["warn",T("Moderate overlap")]:["crit",T("High overlap")];
   const rows=[...r.rows].sort((a,b)=>b.containment-a.containment);
   const passages=r.rows.flatMap(x=>x.runs.map(p=>({...p,idx:x.idx,name:x.name}))).sort((a,b)=>b.words-a.words);
-  const shown=passages.slice(0,8);
-  lastReport=[`Similarity report`,`Project: Advancing Plagiarism Detection through Contextual Embeddings (SDU NLP)`,`Method: shared sequences of ${K} words, lexical baseline`,``,
-    `Result: ${band[1]}. ${pct(r.matched)} of the submission's ${n} words match a source. Longest matched run: ${r.run} words.`,``,`Per source:`,
-    ...rows.map(x=>`[${x.idx}] ${x.name}: matched text ${pct(x.containment)}, Jaccard ${x.jaccard.toFixed(3)}, term cosine ${x.cosine.toFixed(2)}, longest run ${x.run} words`),``,
-    `Matched passages (${passages.length}):`,...passages.map(p=>`[${p.idx}] ${p.words} words: "${p.text.replace(/\s+/g," ")}"`),``,
-    `This score supports human review. Quoted and cited text also counts as a match.`].join("\n");
-  box.innerHTML=`<div class="print-head"><b>Similarity report</b> · Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP · ${new Date().toLocaleString()}</div>
-  <div class="head-row"><h2>Report</h2><div class="btns"><button type="button" id="copy-report">Copy</button><button type="button" id="dl-report">Download .txt</button><button type="button" id="print-report">Print or save PDF</button></div></div>
-  <div class="verdict"><span class="pill ${band[0]}">${band[1]}</span><span>${pct(r.matched)} of the submission's ${n} words match a source.</span></div>
+  const shown=passages.slice(0,8),verdict=T("{p} of the submission's {n} words match a source.",{p:pct(r.matched),n});
+  const PROJ=T("Project: Advancing Plagiarism Detection through Contextual Embeddings (SDU NLP)");
+  lastReport=[T("Similarity report"),PROJ,T("Method: shared sequences of {k} words, lexical baseline",{k:K}),``,
+    `${band[1]}. ${verdict} ${T("Longest matched run, words")}: ${r.run}.`,``,T("Per source:"),
+    ...rows.map(x=>`[${x.idx}] ${x.name}: ${T("Matched text")} ${pct(x.containment)}, ${T("Jaccard")} ${x.jaccard.toFixed(3)}, ${T("Term cosine")} ${x.cosine.toFixed(2)}, ${T("Longest run")} ${x.run}`),``,
+    `${T("Matched passages, longest first")} (${passages.length}):`,...passages.map(p=>`[${p.idx}] ${T("{n} words",{n:p.words})}: "${p.text.replace(/\s+/g," ")}"`),``,
+    T("This score supports human review. Quoted and cited text also counts as a match.")].join("\n");
+  box.innerHTML=`<div class="print-head"><b>${T("Similarity report")}</b> · ${PROJ} · ${new Date().toLocaleString(LANG)}</div>
+  <div class="head-row"><h2>${T("Report")}</h2><div class="btns"><button type="button" id="copy-report">${T("Copy")}</button><button type="button" id="dl-report">${T("Download .txt")}</button><button type="button" id="print-report">${T("Print or save PDF")}</button></div></div>
+  <div class="verdict"><span class="pill ${band[0]}">${band[1]}</span><span>${verdict}</span></div>
   <div class="tiles">
-    <div class="tile"><div class="n">${pct(r.matched)}</div><div class="l">Matched text, all sources</div></div>
-    <div class="tile"><div class="n">${r.run}</div><div class="l">Longest matched run, words</div></div>
-    <div class="tile"><div class="n">${Math.max(...r.rows.map(x=>x.cosine)).toFixed(2)}</div><div class="l">Highest term cosine</div></div>
+    <div class="tile"><div class="n">${pct(r.matched)}</div><div class="l">${T("Matched text, all sources")}</div></div>
+    <div class="tile"><div class="n">${r.run}</div><div class="l">${T("Longest matched run, words")}</div></div>
+    <div class="tile"><div class="n">${Math.max(...r.rows.map(x=>x.cosine)).toFixed(2)}</div><div class="l">${T("Highest term cosine")}</div></div>
   </div>
-  <div class="tablebox"><table><tr><th>Source</th><th class="num">Matched text</th><th class="num">Jaccard</th><th class="num">Term cosine</th><th class="num">Longest run</th></tr>
-  ${rows.map(x=>`<tr><td><span class="chip ${cls(x.idx)}">${x.idx}</span>${esc(x.name)}<div class="hint">${x.words} words</div></td><td class="num">${pct(x.containment)}<div class="bar"><i style="width:${(100*x.containment).toFixed(1)}%"></i></div></td><td class="num">${x.jaccard.toFixed(3)}</td><td class="num">${x.cosine.toFixed(2)}</td><td class="num">${x.run}</td></tr>`).join("")}</table></div>
-  <div class="field"><span class="lab">Submission with matched passages highlighted</span><div class="doc">${highlight(sub,r.tok,r.owner)}</div><span class="hint">The small number after a highlight is the source it matches.</span></div>
-  ${passages.length?`<div class="field"><span class="lab">Matched passages, longest first</span><ul class="passages">${shown.map(p=>`<li><span class="chip ${cls(p.idx)}">${p.idx}</span><b>${p.words} words</b> · ${esc(p.text)}</li>`).join("")}</ul>${passages.length>shown.length?`<span class="hint">${passages.length-shown.length} shorter passages are included in the copied report.</span>`:""}</div>`:""}
+  <div class="tablebox" tabindex="0" role="group" aria-label="${T("Per source:")}"><table><tr><th scope="col">${T("Source")}</th><th scope="col" class="num">${T("Matched text")}</th><th scope="col" class="num">${T("Jaccard")}</th><th scope="col" class="num">${T("Term cosine")}</th><th scope="col" class="num">${T("Longest run")}</th></tr>
+  ${rows.map(x=>`<tr><td><span class="chip ${cls(x.idx)}">${x.idx}</span>${esc(x.name)}<div class="hint">${T("{n} words",{n:x.words})}</div></td><td class="num">${pct(x.containment)}<div class="bar" aria-hidden="true"><i style="width:${(100*x.containment).toFixed(1)}%"></i></div></td><td class="num">${x.jaccard.toFixed(3)}</td><td class="num">${x.cosine.toFixed(2)}</td><td class="num">${x.run}</td></tr>`).join("")}</table></div>
+  <div class="field"><span class="lab" id="doc-lab">${T("Submission with matched passages highlighted")}</span><div class="doc" tabindex="0" role="group" aria-labelledby="doc-lab">${highlight(sub,r.tok,r.owner)}</div><span class="hint">${T("The small number after a highlight is the source it matches.")}</span></div>
+  ${passages.length?`<div class="field"><span class="lab">${T("Matched passages, longest first")}</span><ul class="passages">${shown.map(p=>`<li><span class="chip ${cls(p.idx)}">${p.idx}</span><b>${T("{n} words",{n:p.words})}</b> · ${esc(p.text)}</li>`).join("")}</ul>${passages.length>shown.length?`<span class="hint">${T("{n} shorter passages are included in the copied report.",{n:passages.length-shown.length})}</span>`:""}</div>`:""}
   <div id="api-result" class="field"></div>
-  <p class="hint" id="api-hint">A source with a high term cosine and little matched text covers the same topic in different words. That pattern can be coincidence or paraphrase. Connect the project API above to separate the two.</p>`;
-  $("copy-report").onclick=async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(fullReport());b.textContent="Copied";}catch(err){b.textContent="Copy blocked by browser";}setTimeout(()=>b.textContent="Copy",2500);};
+  <p class="hint" id="api-hint">${T("A source with a high term cosine and little matched text covers the same topic in different words. That pattern can be coincidence or paraphrase. Connect the project API above to separate the two.")}</p>`;
+  $("copy-report").onclick=async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(fullReport());b.textContent=T("Copied");}catch(err){b.textContent=T("Copy blocked by browser");}setTimeout(()=>b.textContent=T("Copy"),2500);};
   $("dl-report").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([fullReport()],{type:"text/plain;charset=utf-8"}));a.download="similarity-report-"+new Date().toISOString().slice(0,10)+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
   $("print-report").onclick=()=>window.print();
-  if(apiUrl())runApi(sub,srcs);
+  if(keepApi===true&&lastApi)renderApi(lastApi.j,lastApi.srcs);
+  else{lastApi=null;apiReport="";if(apiUrl())runApi(sub,srcs);}
 }
 
 /* ---------- file reading: .txt, .docx, .pdf ---------- */
@@ -601,7 +900,7 @@ const LIBS={
   pdf:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
   pdfWorker:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"};
 const loaded={};
-function loadScript(src){return loaded[src]||(loaded[src]=new Promise((ok,bad)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{delete loaded[src];bad(new Error("Could not load the file reader. Check your internet connection."));};document.head.appendChild(s);}));}
+function loadScript(src){return loaded[src]||(loaded[src]=new Promise((ok,bad)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{delete loaded[src];bad(new Error(T("Could not load the file reader. Check your internet connection.")));};document.head.appendChild(s);}));}
 async function extractText(file){
   const ext=(file.name.split(".").pop()||"").toLowerCase();
   if(ext==="docx"){await loadScript(LIBS.mammoth);const r=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return r.value;}
@@ -609,53 +908,62 @@ async function extractText(file){
     await loadScript(LIBS.pdf);const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc=LIBS.pdfWorker;
     const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;let out="";
     for(let i=1;i<=doc.numPages;i++){const c=await (await doc.getPage(i)).getTextContent();for(const it of c.items){out+=it.str+(it.hasEOL?"\n":"");}out+="\n\n";}
-    out=out.replace(/(\w)-\n(\w)/g,"$1$2").replace(/[ \t]+\n/g,"\n");
-    if(!out.trim())throw new Error("This PDF has no text layer. It may be a scan; run OCR first.");
+    out=out.replace(/(\p{L})-\n(\p{L})/gu,"$1$2").replace(/[ \t]+\n/g,"\n");
+    if(!out.trim())throw new Error(T("This PDF has no text layer. It may be a scan; run OCR first."));
     return out;}
-  if(ext==="doc")throw new Error("Old .doc files are not supported. Save the file as .docx and try again.");
+  if(ext==="doc")throw new Error(T("Old .doc files are not supported. Save the file as .docx and try again."));
   return await file.text();
 }
-function readTxt(input,ta,after){
+function readFile(input,ta,after){
   input.addEventListener("change",async e=>{
-    const f=e.target.files[0];if(!f)return;const prev=ta.value;ta.value="Reading "+f.name+"…";ta.disabled=true;
+    const f=e.target.files[0];if(!f)return;const prev=ta.value;ta.value=T("Reading {name}…",{name:f.name});ta.disabled=true;
     try{ta.value=(await extractText(f)).trim();if(after)after(f,null);}
     catch(err){ta.value=prev;if(after)after(f,err);else alertInline(ta,err.message);}
     finally{ta.disabled=false;ta.dispatchEvent(new Event("input"));e.target.value="";}
   });
 }
-function alertInline(ta,msg){let n=ta.parentElement.querySelector(".file-err");if(!n){n=document.createElement("span");n.className="hint file-err";n.style.color="var(--crit)";ta.after(n);}n.textContent=msg;setTimeout(()=>n.remove(),6000);}
+function alertInline(ta,msg){let n=ta.parentElement.querySelector(".file-err");if(!n){n=document.createElement("span");n.className="status err file-err";n.setAttribute("role","alert");ta.after(n);}n.textContent=msg;setTimeout(()=>n.remove(),8000);}
 
 /* ---------- optional API connection ---------- */
-const store={get:k=>{try{return localStorage.getItem(k)||"";}catch(e){return "";}},set:(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k);}catch(e){}}};
-let apiOn=false,apiReport="";
+let apiOn=false,apiReport="",statusState=["Not connected. Checks run in the browser only.",null,""],noteState=["Example texts are loaded.",null,false];
 const apiUrl=()=>apiOn?$("api-url").value.trim().replace(/\/+$/,""):"";
 function apiHeaders(){const h={"Content-Type":"application/json"};const k=$("api-key").value.trim();if(k)h["X-API-Key"]=k;return h;}
-function setStatus(t,c){const s=$("api-status");s.textContent=t;s.className="status "+(c||"");}
+function renderStatus(){const s=$("api-status");s.textContent=T(statusState[0],statusState[1]);s.className="status "+statusState[2];}
+function setStatus(t,v,c){statusState=[t,v||null,c||""];renderStatus();}
+function renderNote(){const n=$("ex-note");n.textContent=noteState[0]?T(noteState[0],noteState[1]):"";n.className=noteState[2]?"status err":"hint";}
+function setNote(t,v,err){noteState=[t,v||null,!!err];renderNote();}
 async function testApi(){
   const u=$("api-url").value.trim().replace(/\/+$/,"");
-  if(!/^https:\/\//i.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(u)){setStatus("Enter an address that starts with https://.","err");return;}
+  if(!/^https:\/\//i.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(u)){setStatus("Enter an address that starts with https://.",null,"err");return;}
   setStatus("Connecting…");
-  try{const r=await fetch(u+"/health",{headers:apiHeaders()});if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();
-    apiOn=true;store.set("pp-api-url",u);setStatus("Connected. Model: "+j.model+". Threshold "+j.threshold+".","ok");runCheck();}
-  catch(err){apiOn=false;setStatus("Could not reach the API ("+err.message+"). Check the address, and that the server allows this site in CORS_ORIGINS.","err");}
+  try{const r=await fetch(u+"/health");if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();
+    if(j.key_required){const p=await fetch(u+"/v1/ping",{headers:apiHeaders()});if(p.status===401){apiOn=false;setStatus("The server is reachable but refused the API key.",null,"err");return;}}
+    apiOn=true;store.set("pp-api-url",u);setStatus("Connected. Model: {model}. Threshold {threshold}.",{model:j.model,threshold:j.threshold},"ok");runCheck();}
+  catch(err){apiOn=false;setStatus("Could not reach the API ({error}). Check the address, and that the server allows this site in CORS_ORIGINS.",{error:err.message},"err");}
 }
+const API_LAB=()=>`<span class="lab">${T("Paraphrase check with contextual embeddings")}</span>`;
 async function runApi(sub,srcs){
   const box=$("api-result");if(!box)return;apiReport="";
-  box.innerHTML=`<span class="lab">Paraphrase check with contextual embeddings</span><p class="hint">Sending to the API…</p>`;
+  box.innerHTML=API_LAB()+`<p class="hint">${T("Sending to the API…")}</p>`;
   try{
     const r=await fetch(apiUrl()+"/v1/compare",{method:"POST",headers:apiHeaders(),body:JSON.stringify({submission:sub,sources:srcs.map((s,i)=>({id:String(i+1),text:s.text}))})});
-    const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.detail?(typeof j.detail==="string"?j.detail:"invalid request"):"HTTP "+r.status);
-    const name=id=>srcs[+id-1]?srcs[+id-1].name:id;
-    const pairs=j.sources.flatMap(s=>s.matches.map(m=>({...m,src:s.source_id}))).sort((a,b)=>b.cosine-a.cosine);
-    apiReport=[`Paraphrase check (API, model ${j.model}, threshold ${j.threshold}):`,`${pct(j.overall_flagged_share)} of ${j.submission_sentences} submission sentences have a close match.`,
-      ...j.sources.map(s=>`[${s.source_id}] ${name(s.source_id)}: flagged ${pct(s.semantic.flagged_share)}, mean best cosine ${s.semantic.mean_best_cosine.toFixed(3)}`),
-      ...pairs.map(p=>`[${p.src}] cos ${p.cosine.toFixed(3)}: "${p.submission_sentence}" ~ "${p.source_sentence}"`)].join("\n");
-    box.innerHTML=`<span class="lab">Paraphrase check with contextual embeddings</span>
-    <div class="verdict"><span class="pill ${j.overall_flagged_share<.15?"ok":j.overall_flagged_share<=.4?"warn":"crit"}">${pct(j.overall_flagged_share)} of sentences</span><span>have a close match in meaning (cosine ≥ ${j.threshold}) across ${j.sources.length} sources.</span></div>
-    ${pairs.length?`<ul class="pairs">${pairs.slice(0,10).map(p=>`<li><span>${esc(p.submission_sentence)}</span><span class="cos">${p.cosine.toFixed(3)}</span><span class="from"><span class="chip ${cls(+p.src)}">${p.src}</span>${esc(p.source_sentence)}</span></li>`).join("")}</ul>`:`<p class="hint">No sentence pair reached the threshold.</p>`}
-    <span class="hint">Model: ${esc(j.model)}</span>`;
-    const hint=$("api-hint");if(hint)hint.remove();
-  }catch(err){box.innerHTML=`<span class="lab">Paraphrase check with contextual embeddings</span><p class="status err">The API check failed: ${esc(err.message)}. The browser results above are still valid.</p>`;}
+    const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.detail?(typeof j.detail==="string"?j.detail:T("the request was not accepted (a text may be too long)")):"HTTP "+r.status);
+    lastApi={j,srcs};renderApi(j,srcs);
+  }catch(err){if($("api-result"))$("api-result").innerHTML=API_LAB()+`<p class="status err" role="alert">${T("The API check failed: {error}. The browser results above are still valid.",{error:esc(err.message)})}</p>`;}
+}
+function renderApi(j,srcs){
+  const box=$("api-result");if(!box)return;
+  const name=id=>srcs[+id-1]?srcs[+id-1].name:id;
+  const pairs=j.sources.flatMap(s=>s.matches.map(m=>({...m,src:s.source_id}))).sort((a,b)=>b.cosine-a.cosine);
+  const head=T("{p} of {n} submission sentences have a close match in meaning (cosine ≥ {t}).",{p:pct(j.overall_flagged_share),n:j.submission_sentences,t:j.threshold});
+  apiReport=[`${T("Paraphrase check with contextual embeddings")} (${T("Model")}: ${j.model})`,head,
+    ...j.sources.map(s=>`[${s.source_id}] ${name(s.source_id)}: ${T("Flagged sentences")} ${pct(s.semantic.flagged_share)}, ${T("Mean best cosine")} ${s.semantic.mean_best_cosine.toFixed(3)}`),
+    ...pairs.map(p=>`[${p.src}] cos ${p.cosine.toFixed(3)}: "${p.submission_sentence}" ~ "${p.source_sentence}"`)].join("\n");
+  box.innerHTML=API_LAB()+`
+  <div class="verdict"><span class="pill ${j.overall_flagged_share<.15?"ok":j.overall_flagged_share<=.4?"warn":"crit"}">${pct(j.overall_flagged_share)}</span><span>${head}</span></div>
+  ${pairs.length?`<ul class="pairs">${pairs.slice(0,10).map(p=>`<li><span>${esc(p.submission_sentence)}</span><span class="cos">${p.cosine.toFixed(3)}</span><span class="from"><span class="chip ${cls(+p.src)}">${esc(p.src)}</span>${esc(p.source_sentence)}</span></li>`).join("")}</ul>${pairs.length>10?`<span class="hint">${T("{n} more sentence pairs are included in the copied report.",{n:pairs.length-10})}</span>`:""}`:`<p class="hint">${T("No sentence pair reached the threshold.")}</p>`}
+  <span class="hint">${T("Model")}: ${esc(j.model)}</span>`;
+  const hint=$("api-hint");if(hint)hint.remove();
 }
 const fullReport=()=>lastReport+(apiReport?"\n\n"+apiReport:"");
 
@@ -690,27 +998,54 @@ function styleScore(a,b){
 let candN=0;
 function addCand(name,text){
   candN++;const d=document.createElement("div");d.className="src";
-  d.innerHTML=`<div class="src-head"><input type="text" id="cand-name-${candN}" aria-label="Candidate name" value="${esc(name||"Candidate "+candN)}"><button type="button" class="x" aria-label="Remove this candidate">Remove</button></div><textarea id="cand-text-${candN}" rows="6" aria-label="Writing samples"></textarea>`;
+  d.innerHTML=`<div class="src-head"><input type="text" id="cand-name-${candN}" aria-label="Candidate name" data-ta="aria-label"><button type="button" class="x" data-t>Remove</button></div><textarea id="cand-text-${candN}" rows="6" aria-label="Writing samples" data-ta="aria-label"></textarea>${FILE_LABEL}`;
+  d.querySelector("input").value=name||T("Candidate {n}",{n:candN});
   d.querySelector("textarea").value=text||"";
-  d.querySelector("button").onclick=()=>d.remove();
-  $("cands").appendChild(d);
+  d.querySelector("button").onclick=()=>{d.remove();$("add-cand").focus();};
+  readFile(d.querySelector("input[type=file]"),d.querySelector("textarea"));
+  applyLang(d);$("cands").appendChild(d);return d;
 }
 function runAuth(){
-  const q=$("q").value,cs=[...$("cands").children].map(d=>({name:d.querySelector("input").value.trim()||"Unnamed candidate",text:d.querySelector("textarea").value})).filter(c=>c.text.trim());
+  const q=$("q").value,cs=[...$("cands").children].map(d=>({name:d.querySelector("input").value.trim()||T("Unnamed candidate"),text:d.querySelector("textarea").value})).filter(c=>c.text.trim());
   const box=$("r-auth");
-  if(tokens(q).length<20||!cs.length){box.innerHTML=`<h2>Report</h2><p class="hint">Enter a questioned text of at least 20 words and at least one candidate sample, then select Compare style.</p>`;return;}
+  if(tokens(q).length<20||!cs.length){box.innerHTML=`<h2>${T("Report")}</h2><p class="hint">${T("Enter a questioned text of at least 20 words and at least one candidate sample, then select Compare style.")}</p>`;return;}
   const qp=styleProfile(q),res=cs.map(c=>{const p=styleProfile(c.text);return{name:c.name,p,...styleScore(qp,p)};}).sort((a,b)=>b.score-a.score);
   const short=qp.n<150||res.some(r=>r.p.n<150),top=res[0],gap=res.length>1?top.score-res[1].score:null;
   const fmt=v=>v>=10?v.toFixed(1):v.toFixed(2);
-  box.innerHTML=`<h2>Report</h2>
-  <div class="verdict">${res.length>1?`<span>Closest in style: <b>${esc(top.name)}</b>, ahead of the next candidate by ${gap.toFixed(3)}.</span>`:`<span>Only one candidate was given, so there is nothing to rank against. Add a second writer for a meaningful comparison.</span>`}</div>
-  ${short?`<div class="verdict"><span class="pill warn">Short text</span><span>At least one text has fewer than 150 words. Scores from short texts are unstable.</span></div>`:""}
-  <div class="tablebox"><table><tr><th>Candidate</th><th class="num">Style similarity</th><th class="num">Character trigrams</th><th class="num">Function words</th><th class="num">Habits</th></tr>
-  ${res.map((r,i)=>`<tr class="${i===0&&res.length>1?"best":""}"><td>${esc(r.name)}<div class="hint">${r.p.n} words</div></td><td class="num"><b>${r.score.toFixed(3)}</b><div class="bar"><i style="width:${(100*r.score).toFixed(1)}%"></i></div></td><td class="num">${r.tri.toFixed(3)}</td><td class="num">${r.fw===null?"n/a":r.fw.toFixed(3)}</td><td class="num">${r.sc.toFixed(3)}</td></tr>`).join("")}</table></div>
-  <div class="field"><span class="lab">Writing habits side by side</span>
-  <div class="tablebox"><table><tr><th>Habit</th><th class="num">Questioned</th>${res.map(r=>`<th class="num">${esc(r.name)}</th>`).join("")}</tr>
-  ${Object.keys(qp.scalars).map(k=>`<tr><td>${k}</td><td class="num">${fmt(qp.scalars[k])}</td>${res.map(r=>`<td class="num">${fmt(r.p.scalars[k])}</td>`).join("")}</tr>`).join("")}</table></div></div>
-  <p class="hint">Two texts in the same language always share many character patterns, so absolute values run high. The difference between candidates carries the information.</p>`;
+  box.innerHTML=`<h2>${T("Report")}</h2>
+  <div class="verdict">${res.length>1?`<span>${T("Closest in style: <b>{name}</b>, ahead of the next candidate by {gap}.",{name:esc(top.name),gap:gap.toFixed(3)})}</span>`:`<span>${T("Only one candidate was given, so there is nothing to rank against. Add a second writer for a meaningful comparison.")}</span>`}</div>
+  ${short?`<div class="verdict"><span class="pill warn">${T("Short text")}</span><span>${T("At least one text has fewer than 150 words. Scores from short texts are unstable.")}</span></div>`:""}
+  <div class="tablebox" tabindex="0" role="group" aria-label="${T("Candidate authors")}"><table><tr><th scope="col">${T("Candidate")}</th><th scope="col" class="num">${T("Style similarity")}</th><th scope="col" class="num">${T("Character trigrams")}</th><th scope="col" class="num">${T("Function words")}</th><th scope="col" class="num">${T("Habits")}</th></tr>
+  ${res.map((r,i)=>`<tr class="${i===0&&res.length>1?"best":""}"><td>${esc(r.name)}<div class="hint">${T("{n} words",{n:r.p.n})}</div></td><td class="num"><b>${r.score.toFixed(3)}</b><div class="bar" aria-hidden="true"><i style="width:${(100*r.score).toFixed(1)}%"></i></div></td><td class="num">${r.tri.toFixed(3)}</td><td class="num">${r.fw===null?T("n/a"):r.fw.toFixed(3)}</td><td class="num">${r.sc.toFixed(3)}</td></tr>`).join("")}</table></div>
+  <div class="field"><span class="lab">${T("Writing habits side by side")}</span>
+  <div class="tablebox" tabindex="0" role="group" aria-label="${T("Writing habits side by side")}"><table><tr><th scope="col">${T("Habit")}</th><th scope="col" class="num">${T("Questioned")}</th>${res.map(r=>`<th scope="col" class="num">${esc(r.name)}</th>`).join("")}</tr>
+  ${Object.keys(qp.scalars).map(k=>`<tr><td>${T(k)}</td><td class="num">${fmt(qp.scalars[k])}</td>${res.map(r=>`<td class="num">${fmt(r.p.scalars[k])}</td>`).join("")}</tr>`).join("")}</table></div></div>
+  <p class="hint">${T("Two texts in the same language always share many character patterns, so absolute values run high. The difference between candidates carries the information.")}</p>`;
+}
+
+/* ---------- project facts from project-data.js ---------- */
+const num=(v,d)=>typeof v==="number"?v.toFixed(d===undefined?3:d):"";
+const doiLink=d=>d?`<a href="https://doi.org/${encodeURIComponent(d).replace(/%2F/g,"/")}">doi:${esc(d)}</a>`:"";
+function renderProject(){
+  $("grant-box").textContent=PD.grantNumber?T("Grant number: {n}.",{n:PD.grantNumber}):T("The grant number will be added by the project team.");
+  $("doi-box").innerHTML=PD.doi?doiLink(PD.doi):`<span class="hint">${T("Will be added with the first archived release.")}</span>`;
+  const models=(PD.models||[]).filter(m=>m&&m.name);
+  $("models-box").innerHTML=models.length?models.map(m=>(m.url?`<a href="${esc(m.url)}">${esc(m.name)}</a>`:esc(m.name))+(m.use?` (${esc(m.use)})`:"")).join("; "):`<span class="hint">${T("The project's fine-tuned models will be linked here when they are published.")}</span>`;
+  const ev=PD.evaluation||{},rows=(ev.rows||[]).filter(r=>r&&r.label);
+  if(!rows.length)$("eval-box").innerHTML=`<p>${T("eval.none")}</p>`;
+  else{
+    const cols=[["n","Documents",0],["precision","Precision"],["recall","Recall"],["f1","F1"],["accuracy","Accuracy"]].filter(c=>rows.some(r=>typeof r[c[0]]==="number"));
+    const facts=[["Corpus",ev.corpus],["Model",ev.model],["Threshold",ev.threshold],["Date",ev.date]].filter(f=>f[1]!==undefined&&f[1]!=="");
+    let group=null;
+    $("eval-box").innerHTML=`<p>${T("eval.intro")}</p>${facts.length?`<dl class="facts">${facts.map(f=>`<dt>${T(f[0])}</dt><dd>${esc(f[1])}</dd>`).join("")}</dl>`:""}
+    <div class="tablebox" tabindex="0" role="group" aria-label="${T("Evaluation results")}"><table><tr><th scope="col">${T("Category")}</th>${cols.map(c=>`<th scope="col" class="num">${T(c[1])}</th>`).join("")}</tr>
+    ${rows.map(r=>{const g=r.group&&r.group!==group?`<tr class="grp"><th scope="colgroup" colspan="${cols.length+1}">${esc(group=r.group)}</th></tr>`:"";return g+`<tr><th scope="row">${esc(r.label)}</th>${cols.map(c=>`<td class="num">${num(r[c[0]],c[2])}</td>`).join("")}</tr>`;}).join("")}</table></div>
+    ${ev.note?`<p class="hint">${esc(ev.note)}</p>`:""}`;
+  }
+  const pubs=(PD.publications||[]).filter(p=>p&&p.title);
+  $("pubs-box").innerHTML=pubs.length?`<ol class="pubs">${pubs.map(p=>`<li lang="en">${esc(p.authors||"")}${p.year?` (${esc(p.year)})`:""}. ${p.url&&!p.doi?`<a href="${esc(p.url)}">${esc(p.title)}</a>`:esc(p.title)}. ${p.venue?`<i>${esc(p.venue)}</i>. `:""}${doiLink(p.doi)}</li>`).join("")}</ol>`:`<p>${T("Peer-reviewed papers from the project are listed here with their DOIs as they are published.")}</p>`;
+  const pilots=(PD.pilots||[]).filter(p=>p&&p.institution);
+  $("pilot-box").innerHTML=pilots.length?`<div class="tablebox"><table><tr><th scope="col">${T("Institution")}</th><th scope="col">${T("Platform")}</th><th scope="col">${T("Since")}</th><th scope="col" class="num">${T("Courses")}</th><th scope="col" class="num">${T("Submissions checked")}</th></tr>${pilots.map(p=>`<tr><td>${esc(p.institution)}</td><td>${esc(p.platform||"")}</td><td>${esc(p.since||"")}</td><td class="num">${esc(p.courses===undefined?"":p.courses)}</td><td class="num">${esc(p.submissions===undefined?"":p.submissions)}</td></tr>`).join("")}</table></div>`:`<p>${T("pilot.none")}</p>`;
 }
 
 /* ---------- example texts (written for this demo) ---------- */
@@ -721,34 +1056,52 @@ const EX_Q="It rained. We stayed in the lab and ran the tests again. Nothing cha
 const EX_C1="The seed was fixed. We ran it five times anyway. Same result, five times. That is what you want. Then we changed the tokenizer and everything moved. Not much, but enough. I wrote the numbers on the board. Small gains, all of them. No single trick did the work. It was ten small things. Clean the data. Check the labels. Split by author, not by document. Run again. People want one big idea. There usually is not one. There is a list, and you go down it. We went down it for a month. By the end the model was better and we knew why. That matters more than the score.";
 const EX_C2="Although the initial experiments appeared, at first glance, to confirm our hypothesis, a more careful examination of the evaluation protocol revealed that the partition between training and test material had been constructed at the level of documents rather than authors; consequently, the classifier was able to exploit idiosyncratic regularities that it had already encountered during training. Once this deficiency had been remedied, the reported accuracy declined considerably, which, while disappointing, provided a far more trustworthy estimate of the system's behaviour on unseen writers. It is worth emphasising, moreover, that the subsequent improvements were obtained not through any single architectural innovation but through the patient accumulation of modest refinements, each of which was validated independently.";
 
-/* ---------- wiring ---------- */
-$("sub").value=EX_SUB;addSource("Lecture notes on embeddings",EX_A);addSource("Blog post, paraphrased passage",EX_B);
-$("q").value=EX_Q;addCand("Student A, earlier report",EX_C1);addCand("Student B, earlier report",EX_C2);
-const wc=(ta,out)=>{const f=()=>$(out).textContent=tokens($(ta).value).length+" words";$(ta).addEventListener("input",f);f();return f;};
-const subCount=wc("sub","sub-count");wc("q","q-count");
-$("f-check").addEventListener("submit",e=>{e.preventDefault();runCheck();});
-$("f-auth").addEventListener("submit",e=>{e.preventDefault();runAuth();});
-$("add-src").onclick=()=>addSource();
-$("add-cand").onclick=()=>addCand();
-$("clear-check").onclick=()=>{$("sub").value="";$("sources").innerHTML="";srcN=0;addSource();subCount();$("ex-note").textContent="";runCheck();};
-readTxt($("sub-file"),$("sub"),(f,err)=>{const n=$("ex-note");n.textContent=err?err.message:"Loaded "+f.name+".";n.style.color=err?"var(--crit)":"";});
-$("api-url").value=store.get("pp-api-url");
-$("api-test").onclick=testApi;
-$("api-off").onclick=()=>{apiOn=false;apiReport="";store.set("pp-api-url","");$("api-url").value="";$("api-key").value="";setStatus("Not connected. Checks run in the browser only.");runCheck();};
-$("k").addEventListener("change",runCheck);
-runCheck();runAuth();
+/* ---------- docs table of contents: buttons, because the URL hash is used for views ---------- */
+function buildToc(){
+  const toc=$("toc");toc.innerHTML=`<b>${T("On this page")}</b>`;
+  for(const s of document.querySelectorAll("#manual > section")){
+    const h=s.querySelector(`[data-l="${LANG}"] h2`)||s.querySelector(":scope > h2");if(!h)continue;
+    const b=document.createElement("button");b.type="button";b.textContent=h.textContent;
+    b.onclick=()=>{s.scrollIntoView();h.setAttribute("tabindex","-1");h.focus({preventScroll:true});};toc.appendChild(b);
+  }
+}
+document.addEventListener("click",e=>{const a=e.target.closest("a[data-jump]");if(!a)return;e.preventDefault();location.hash="#docs";setTimeout(()=>$(a.dataset.jump).scrollIntoView(),0);});
 
-/* docs table of contents: buttons, because the URL hash is used for views */
-for(const s of document.querySelectorAll("#manual section")){const b=document.createElement("button");b.type="button";b.textContent=s.querySelector("h2").textContent;b.onclick=()=>s.scrollIntoView();$("toc").appendChild(b);}
-
-/* views routed on the hash */
-function route(){
+/* ---------- views routed on the hash ---------- */
+function route(ev){
   const v=["check","authorship","docs","about"].includes(location.hash.slice(1))?location.hash.slice(1):"check";
   for(const el of document.querySelectorAll(".view"))el.classList.toggle("on",el.id==="v-"+v);
-  for(const a of document.querySelectorAll("nav a")){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");}
+  for(const a of document.querySelectorAll("header nav a")){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");}
   window.scrollTo(0,0);
+  if(ev)$("main").focus({preventScroll:true});   /* after a view change, keyboard and screen-reader users continue from the new content */
 }
-addEventListener("hashchange",route);route();
+
+/* ---------- wiring ---------- */
+/* wide code samples and tables scroll sideways; make them reachable by keyboard */
+for(const el of document.querySelectorAll("pre,.manual .tablebox,.about .tablebox"))el.tabIndex=0;
+const wc=(ta,out)=>{const f=()=>$(out).textContent=T("{n} words",{n:tokens($(ta).value).length});$(ta).addEventListener("input",f);return f;};
+const subCount=wc("sub","sub-count"),qCount=wc("q","q-count");
+$("sub").value=EX_SUB;$("q").value=EX_Q;
+{const d=addSource("Lecture notes on embeddings",EX_A);d.querySelector("input").dataset.ex="1";
+ const e=addSource("Blog post, paraphrased passage",EX_B);e.querySelector("input").dataset.ex="1";
+ addCand("Student A, earlier report",EX_C1);addCand("Student B, earlier report",EX_C2);}
+$("f-check").addEventListener("submit",e=>{e.preventDefault();runCheck();});
+$("f-auth").addEventListener("submit",e=>{e.preventDefault();runAuth();});
+$("add-src").onclick=()=>addSource().querySelector("textarea").focus();
+$("add-cand").onclick=()=>addCand().querySelector("textarea").focus();
+$("clear-check").onclick=()=>{$("sub").value="";$("sources").innerHTML="";srcN=0;addSource();subCount();setNote("");runCheck();$("sub").focus();};
+readFile($("sub-file"),$("sub"),(f,err)=>{if(err)setNote(err.message,null,true);else setNote("Loaded {name}.",{name:f.name});});
+$("api-url").value=store.get("pp-api-url");
+$("api-test").onclick=testApi;
+$("api-off").onclick=()=>{apiOn=false;apiReport="";lastApi=null;store.set("pp-api-url","");$("api-url").value="";$("api-key").value="";setStatus("Not connected. Checks run in the browser only.");runCheck();};
+$("k").addEventListener("change",()=>runCheck());
+for(const b of document.querySelectorAll(".langs button"))b.onclick=()=>setLang(b.dataset.lang,true);
+{const q=new URLSearchParams(location.search).get("lang"),nav=(navigator.language||"").slice(0,2).toLowerCase();
+ setLang(q||store.get("pp-lang")||(LANGS.includes(nav)?nav:"en"),false);}
+/* the docs contents list and section anchors sit below the sticky header, whatever its height */
+function headerHeight(){document.documentElement.style.setProperty("--hh",document.querySelector("header.top").offsetHeight+"px");}
+addEventListener("resize",headerHeight);
+addEventListener("hashchange",route);route();headerHeight();
 </script>
 </body>
 </html>

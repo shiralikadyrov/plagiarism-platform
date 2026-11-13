@@ -1,0 +1,6 @@
+.git
+.github
+integrations
+tests
+*.md
+index.html

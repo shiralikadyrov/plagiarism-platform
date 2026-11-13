@@ -20,13 +20,18 @@ Configuration (environment variables)
     SIM_THRESHOLD     sentence cosine at or above which a pair is flagged (default 0.80)
     API_KEY           if set, clients must send it in the X-API-Key header
     CORS_ORIGINS      comma-separated list of allowed browser origins (default: none)
+    ENCODE_BATCH      sentences encoded per batch (default 32). Lower it if the
+                      GPU runs out of memory.
+    MAX_SENT_WORDS    a sentence longer than this is split into parts, so that
+                      no text is cut off by the encoder's length limit (default 60)
 
 Interactive API docs are served at /docs once the server is running.
 """
+import hmac
 import os
 import re
 from functools import lru_cache
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,10 +41,14 @@ MODEL_NAME = os.getenv("MODEL_NAME", "sentence-transformers/paraphrase-multiling
 STYLE_MODEL_NAME = os.getenv("STYLE_MODEL_NAME", MODEL_NAME)
 SIM_THRESHOLD = float(os.getenv("SIM_THRESHOLD", "0.80"))
 API_KEY = os.getenv("API_KEY")
+ENCODE_BATCH = int(os.getenv("ENCODE_BATCH", "32"))
+MAX_SENT_WORDS = int(os.getenv("MAX_SENT_WORDS", "60"))
 SHINGLE = 3
 MAX_CHARS = 200_000
+MAX_SAMPLES = 50
+VERSION = "1.0.0"
 
-app = FastAPI(title="Plagiarism and Authorship API", version="1.0.0")
+app = FastAPI(title="Plagiarism and Authorship API", version=VERSION)
 
 _origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
 if _origins:
@@ -57,7 +66,8 @@ def get_encoder(name: str):
 
 def embed(texts: List[str], name: str):
     """Return L2-normalised embeddings as a numpy array (n, d)."""
-    return get_encoder(name).encode(texts, normalize_embeddings=True, convert_to_numpy=True)
+    return get_encoder(name).encode(texts, batch_size=ENCODE_BATCH, normalize_embeddings=True,
+                                    convert_to_numpy=True, show_progress_bar=False)
 
 
 # ---------- text helpers ----------
@@ -71,7 +81,26 @@ def words(text: str) -> List[str]:
 
 
 def sentences(text: str) -> List[str]:
-    return [s.strip() for s in _SENT.split(text) if len(s.split()) >= 3]
+    """Split into sentences of three or more words.
+
+    A sentence longer than MAX_SENT_WORDS (a list, a table, text without
+    punctuation) is cut into consecutive parts. Encoders silently drop
+    everything past their length limit, so without this the tail of a long
+    sentence would never be compared.
+    """
+    out = []
+    for s in _SENT.split(text):
+        w = s.split()
+        if len(w) < 3:
+            continue
+        if len(w) <= MAX_SENT_WORDS:
+            out.append(s.strip())
+            continue
+        parts = [w[i:i + MAX_SENT_WORDS] for i in range(0, len(w), MAX_SENT_WORDS)]
+        if len(parts) > 1 and len(parts[-1]) < 3:      # do not leave a stub
+            parts[-2].extend(parts.pop())
+        out.extend(" ".join(p) for p in parts)
+    return out
 
 
 def shingles(tok: List[str], k: int = SHINGLE) -> set:
@@ -108,7 +137,8 @@ class CompareRequest(BaseModel):
 
 class Candidate(BaseModel):
     id: str
-    samples: List[str] = Field(..., min_length=1)
+    samples: List[Annotated[str, Field(max_length=MAX_CHARS)]] = Field(
+        ..., min_length=1, max_length=MAX_SAMPLES)
 
 
 class AuthorshipRequest(BaseModel):
@@ -117,7 +147,7 @@ class AuthorshipRequest(BaseModel):
 
 
 def check_key(x_api_key: Optional[str] = Header(None)):
-    if API_KEY and x_api_key != API_KEY:
+    if API_KEY and not hmac.compare_digest((x_api_key or "").encode(), API_KEY.encode()):
         raise HTTPException(status_code=401, detail="Missing or wrong X-API-Key header")
 
 
@@ -125,8 +155,16 @@ def check_key(x_api_key: Optional[str] = Header(None)):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model": MODEL_NAME, "style_model": STYLE_MODEL_NAME,
-            "threshold": SIM_THRESHOLD}
+    return {"status": "ok", "version": VERSION, "model": MODEL_NAME,
+            "style_model": STYLE_MODEL_NAME, "threshold": SIM_THRESHOLD,
+            "key_required": bool(API_KEY),
+            "limits": {"max_chars": MAX_CHARS, "max_sources": 50}}
+
+
+@app.get("/v1/ping", dependencies=[Depends(check_key)])
+def ping():
+    """Checks the API key without loading a model. Used by connectors' "test connection"."""
+    return {"status": "ok"}
 
 
 @app.post("/v1/compare", dependencies=[Depends(check_key)])

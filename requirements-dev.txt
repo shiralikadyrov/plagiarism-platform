@@ -1,0 +1,7 @@
+# For running the tests. The tests replace the encoder with a stub,
+# so torch and sentence-transformers are not needed here.
+fastapi>=0.110
+httpx>=0.27
+numpy>=1.26
+pytest>=8
+ruff>=0.5
