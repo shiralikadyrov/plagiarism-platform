@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SDU NLP Plagiarism and Authorship Platform</title>
+<meta name="description" content="Open-access plagiarism and authorship checking tools and documentation from the SDU NLP research project Advancing Plagiarism Detection through Contextual Embeddings.">
+<link rel="canonical" href="https://shiralikadyrov.github.io/plagiarism-platform/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SDU NLP Plagiarism and Authorship Platform">
+<meta property="og:description" content="Check a text against sources, compare writing style, and integrate contextual-embedding plagiarism detection into your learning platform.">
+<meta property="og:url" content="https://shiralikadyrov.github.io/plagiarism-platform/">
+<meta name="theme-color" content="#0b6659">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b6659'/%3E%3Cpath d='M8 10h10M8 15h7M8 20h9' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='19' r='4.2' fill='none' stroke='%23ffe27a' stroke-width='2.2'/%3E%3Cpath d='M24 22l3.5 3.5' stroke='%23ffe27a' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -45,6 +53,7 @@ h1{font-size:1.7rem} h2{font-size:1.3rem} h3{font-size:1.05rem;font-family:var(-
 p{margin:0}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
 header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+@media (max-width:600px){header.top{position:static}}
 .top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding-top:10px;padding-bottom:10px}
 .brand{display:flex;flex-direction:column;margin-right:auto}
 .brand b{font-family:var(--display);font-size:1.05rem}
@@ -65,7 +74,7 @@ main{padding:28px 0 64px}
 .field-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 label,.lab{font-weight:600;font-size:.9rem}
 .count{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
-textarea,input[type=text]{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:9px 10px}
+textarea,input[type=text],input[type=password]{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:9px 10px}
 textarea{resize:vertical;min-height:110px;line-height:1.45}
 .src{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .src-head{display:flex;gap:8px;align-items:center}
@@ -113,6 +122,28 @@ select{font:inherit;font-size:.9rem;color:var(--ink);background:var(--paper);bor
 dl.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 20px;margin:0}
 dl.facts dt{color:var(--muted);font-size:.88rem} dl.facts dd{margin:0}
 tr.here td{background:var(--accent-soft)}
+details.api{border:1px dashed var(--line);border-radius:6px;padding:10px 12px}
+details.api summary{cursor:pointer;font-weight:600;font-size:.9rem}
+details.api[open] summary{margin-bottom:10px}
+.api-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px}
+@media (max-width:520px){.api-grid{grid-template-columns:minmax(0,1fr)}}
+.status{font-size:.82rem}
+.status.ok{color:var(--ok)} .status.err{color:var(--crit)}
+.pairs{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.pairs li{border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;font-size:.88rem}
+.pairs .cos{font-family:var(--mono);font-weight:500;grid-row:span 2;align-self:center}
+.pairs .from{color:var(--muted)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.head-row button{font-size:.85rem;padding:6px 10px}
+@media print{
+  header.top,footer,form.panel,.notice,.project,.intro,.btns,.no-print{display:none!important}
+  body{background:#fff;color:#000}
+  .view.on .cols{display:block}
+  .panel{border:0;padding:0}
+  .doc{max-height:none;overflow:visible}
+  .print-head{display:block!important;margin-bottom:12px}
+}
+.print-head{display:none}
 .hint{font-size:.82rem;color:var(--muted)}
 .best td{background:var(--accent-soft)}
 /* docs */
@@ -155,12 +186,12 @@ footer{border-top:1px solid var(--line);padding:18px 0;font-size:.82rem;color:va
     <h1>Check a submission against sources</h1>
     <p>Paste a student text and one or more reference texts. The report shows how much of the submission also appears in each source and highlights the matched passages.</p>
   </div>
-  <p class="notice"><b>What runs on this page.</b> The checks here are the lexical baselines (shared word sequences and term overlap) and run entirely in your browser. No text leaves your device. Paraphrase detection with contextual embeddings runs on the project API server, described under <a href="#docs">Documentation</a>.</p>
+  <p class="notice"><b>What runs on this page.</b> The checks here are the lexical baselines (shared word sequences and term overlap) and run entirely in your browser, so no text leaves your device. To add paraphrase detection with contextual embeddings, connect your institution's API server in the form below. See <a href="#docs">Documentation</a>.</p>
   <div class="cols">
     <form class="panel" id="f-check">
       <div class="field">
         <div class="field-head"><label for="sub">Submission</label>
-          <span><label class="filebtn">Load a .txt file<input type="file" id="sub-file" accept=".txt,text/plain"></label> · <span class="count" id="sub-count"></span></span></div>
+          <span><label class="filebtn">Load a file (.txt, .docx, .pdf)<input type="file" id="sub-file" accept=".txt,.docx,.pdf,text/plain"></label> · <span class="count" id="sub-count"></span></span></div>
         <textarea id="sub" rows="9"></textarea>
       </div>
       <div class="field">
@@ -171,6 +202,17 @@ footer{border-top:1px solid var(--line);padding:18px 0;font-size:.82rem;color:va
         <label for="k">Shortest word sequence that counts as a match</label>
         <div class="row"><select id="k"><option value="3" selected>3 words (most sensitive)</option><option value="4">4 words</option><option value="5">5 words (fewest chance matches)</option></select></div>
       </div>
+      <details class="api" id="api-box">
+        <summary>Connect to the project API for paraphrase detection (optional)</summary>
+        <div class="field" style="gap:10px">
+          <p class="hint">With a connection, each check also sends the texts to your institution's API server, which compares sentences with the contextual embedding model. Without one, nothing leaves your browser. The address must start with https://.</p>
+          <div class="api-grid">
+            <div class="field"><label for="api-url">API address</label><input type="text" id="api-url" placeholder="https://plagiarism.example.edu.kz" autocomplete="url"></div>
+            <div class="field"><label for="api-key">API key</label><input type="password" id="api-key" placeholder="If your server needs one" autocomplete="off"></div>
+          </div>
+          <div class="row"><button type="button" id="api-test">Test connection</button><button type="button" id="api-off">Disconnect</button><span class="status" id="api-status" role="status">Not connected. Checks run in the browser only.</span></div>
+        </div>
+      </details>
       <div class="row">
         <button type="submit" class="primary">Run check</button>
         <button type="button" id="add-src">Add a source</button>
@@ -234,10 +276,11 @@ footer{border-top:1px solid var(--line);padding:18px 0;font-size:.82rem;color:va
           <li>Open <a href="#check">Similarity check</a>. Paste the student text into <b>Submission</b>.</li>
           <li>Paste each reference text into a <b>Source</b> box and give it a short name. Use <b>Add a source</b> for more.</li>
           <li>Select <b>Run check</b>. Read the matched-text share first, then the per-source table, then the highlighted passages. Each highlight carries the number of its source.</li>
-          <li>Select <b>Copy report</b> to paste a plain-text summary into an email or a case file.</li>
+          <li>Use <b>Copy</b>, <b>Download .txt</b> or <b>Print or save PDF</b> to keep the report for a case file.</li>
+          <li>To detect paraphrase, open <b>Connect to the project API</b>, enter your institution's API address and key, and select <b>Test connection</b>. Later checks add a sentence-level comparison by meaning.</li>
           <li>For a style question, open <a href="#authorship">Authorship</a>, paste the questioned text, add earlier work by the student and by at least one other writer, and select <b>Compare style</b>.</li>
         </ol>
-        <p>Texts may be in any language written with spaces between words, including Kazakh, Russian and English. The function-word feature in the style comparison covers English, Russian and Kazakh and is skipped for other languages.</p>
+        <p>You can load .txt, .docx and text-based .pdf files. Scanned PDFs have no text layer and need OCR first. Texts may be in any language written with spaces between words, including Kazakh, Russian and English. The function-word feature in the style comparison covers English, Russian and Kazakh and is skipped for other languages.</p>
       </section>
 
       <section id="d-scores"><h2>How to read the scores</h2>
@@ -369,12 +412,13 @@ for m in report["sources"][0]["matches"]:
           <li>Set <code>API_KEY</code> and give each connecting system its own network rule.</li>
           <li>A GPU is recommended for large batches. The default model also runs on a CPU for single documents.</li>
           <li>Send long documents in parts of up to 200,000 characters.</li>
+          <li>To let this website call your server from the browser, start it with <code>CORS_ORIGINS=https://shiralikadyrov.github.io</code>. Browsers block calls from an https page to a plain http server, so the API must be served over HTTPS.</li>
         </ul>
       </section>
 
       <section id="d-privacy"><h2>Privacy and responsible use</h2>
         <ul>
-          <li>This web page processes text in the browser. It sends nothing to a server and keeps nothing after the tab is closed.</li>
+          <li>This web page processes text in the browser. It sends nothing to a server unless you connect it to an API, and then only to the address you enter. It remembers that address on your device and never stores your texts or API key.</li>
           <li>The reference API server does not write request texts to disk. Institutions that add logging or an archive should tell students and follow their data protection rules.</li>
           <li>Replace student names with pseudonymous identifiers in <code>id</code> fields.</li>
           <li>A score is a prompt for review. Decisions about misconduct belong to people who have read the passages and heard the student.</li>
@@ -392,7 +436,20 @@ for m in report["sources"][0]["matches"]:
       </section>
 
       <section id="d-cite"><h2>Source, licence and citation</h2>
-        <p>The documentation on this page is open access. The repository address, software licence and the reference to cite will be listed here by the project team when the release is tagged.</p>
+        <dl class="facts">
+          <dt>Source code</dt><dd><a href="https://github.com/shiralikadyrov/plagiarism-platform">github.com/shiralikadyrov/plagiarism-platform</a></dd>
+          <dt>Website</dt><dd><a href="https://shiralikadyrov.github.io/plagiarism-platform/">shiralikadyrov.github.io/plagiarism-platform</a></dd>
+          <dt>Licence</dt><dd>Code under the MIT licence. Documentation under Creative Commons Attribution 4.0 (CC BY 4.0).</dd>
+        </dl>
+        <p>To cite the platform:</p>
+        <pre><code>Kadyrov, S., et al. (2026). Plagiarism and Authorship Platform (Version 1.0.0)
+[Computer software]. SDU NLP, SDU University.
+https://github.com/shiralikadyrov/plagiarism-platform</code></pre>
+        <p class="hint">The repository includes a CITATION.cff file, so GitHub's "Cite this repository" button gives the same reference in APA and BibTeX.</p>
+      </section>
+
+      <section id="d-pubs"><h2>Publications</h2>
+        <p>Peer-reviewed papers from the project are listed here with their DOIs as they are published.</p>
       </section>
     </div>
   </div>
@@ -450,7 +507,7 @@ for m in report["sources"][0]["matches"]:
 </div>
 
 </main>
-<footer><div class="wrap">Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP, SDU University. Scores support human review and do not replace it.</div></footer>
+<footer><div class="wrap">Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP, SDU University. <a href="https://github.com/shiralikadyrov/plagiarism-platform">Source code</a> · <a href="#docs">Documentation</a> · Scores support human review and do not replace it.</div></footer>
 
 <script>
 "use strict";
@@ -494,11 +551,10 @@ function highlight(text,tok,owner){
   return out+esc(text.slice(pos));
 }
 const $=id=>document.getElementById(id);
-function readTxt(input,ta,after){input.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{ta.value=String(r.result);ta.dispatchEvent(new Event("input"));if(after)after(f);};r.readAsText(f);});}
 let srcN=0;
 function addSource(name,text){
   srcN++;const d=document.createElement("div");d.className="src";
-  d.innerHTML=`<div class="src-head"><input type="text" id="src-name-${srcN}" aria-label="Source name" value="${esc(name||"Source "+srcN)}"><button type="button" class="x" aria-label="Remove this source">Remove</button></div><textarea id="src-text-${srcN}" rows="5" aria-label="Source text"></textarea><label class="filebtn">Load a .txt file<input type="file" id="src-file-${srcN}" accept=".txt,text/plain"></label>`;
+  d.innerHTML=`<div class="src-head"><input type="text" id="src-name-${srcN}" aria-label="Source name" value="${esc(name||"Source "+srcN)}"><button type="button" class="x" aria-label="Remove this source">Remove</button></div><textarea id="src-text-${srcN}" rows="5" aria-label="Source text"></textarea><label class="filebtn">Load a file (.txt, .docx, .pdf)<input type="file" id="src-file-${srcN}" accept=".txt,.docx,.pdf,text/plain"></label>`;
   d.querySelector("textarea").value=text||"";
   d.querySelector("button").onclick=()=>d.remove();
   readTxt(d.querySelector("input[type=file]"),d.querySelector("textarea"));
@@ -519,7 +575,8 @@ function runCheck(){
     ...rows.map(x=>`[${x.idx}] ${x.name}: matched text ${pct(x.containment)}, Jaccard ${x.jaccard.toFixed(3)}, term cosine ${x.cosine.toFixed(2)}, longest run ${x.run} words`),``,
     `Matched passages (${passages.length}):`,...passages.map(p=>`[${p.idx}] ${p.words} words: "${p.text.replace(/\s+/g," ")}"`),``,
     `This score supports human review. Quoted and cited text also counts as a match.`].join("\n");
-  box.innerHTML=`<div class="head-row"><h2>Report</h2><button type="button" id="copy-report">Copy report</button></div>
+  box.innerHTML=`<div class="print-head"><b>Similarity report</b> · Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP · ${new Date().toLocaleString()}</div>
+  <div class="head-row"><h2>Report</h2><div class="btns"><button type="button" id="copy-report">Copy</button><button type="button" id="dl-report">Download .txt</button><button type="button" id="print-report">Print or save PDF</button></div></div>
   <div class="verdict"><span class="pill ${band[0]}">${band[1]}</span><span>${pct(r.matched)} of the submission's ${n} words match a source.</span></div>
   <div class="tiles">
     <div class="tile"><div class="n">${pct(r.matched)}</div><div class="l">Matched text, all sources</div></div>
@@ -530,9 +587,77 @@ function runCheck(){
   ${rows.map(x=>`<tr><td><span class="chip ${cls(x.idx)}">${x.idx}</span>${esc(x.name)}<div class="hint">${x.words} words</div></td><td class="num">${pct(x.containment)}<div class="bar"><i style="width:${(100*x.containment).toFixed(1)}%"></i></div></td><td class="num">${x.jaccard.toFixed(3)}</td><td class="num">${x.cosine.toFixed(2)}</td><td class="num">${x.run}</td></tr>`).join("")}</table></div>
   <div class="field"><span class="lab">Submission with matched passages highlighted</span><div class="doc">${highlight(sub,r.tok,r.owner)}</div><span class="hint">The small number after a highlight is the source it matches.</span></div>
   ${passages.length?`<div class="field"><span class="lab">Matched passages, longest first</span><ul class="passages">${shown.map(p=>`<li><span class="chip ${cls(p.idx)}">${p.idx}</span><b>${p.words} words</b> · ${esc(p.text)}</li>`).join("")}</ul>${passages.length>shown.length?`<span class="hint">${passages.length-shown.length} shorter passages are included in the copied report.</span>`:""}</div>`:""}
-  <p class="hint">A source with a high term cosine and little matched text covers the same topic in different words. That pattern can be coincidence or paraphrase. The API's embedding check separates the two.</p>`;
-  $("copy-report").onclick=async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(lastReport);b.textContent="Copied";}catch(err){b.textContent="Copying is blocked in this viewer";}setTimeout(()=>b.textContent="Copy report",2500);};
+  <div id="api-result" class="field"></div>
+  <p class="hint" id="api-hint">A source with a high term cosine and little matched text covers the same topic in different words. That pattern can be coincidence or paraphrase. Connect the project API above to separate the two.</p>`;
+  $("copy-report").onclick=async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(fullReport());b.textContent="Copied";}catch(err){b.textContent="Copy blocked by browser";}setTimeout(()=>b.textContent="Copy",2500);};
+  $("dl-report").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([fullReport()],{type:"text/plain;charset=utf-8"}));a.download="similarity-report-"+new Date().toISOString().slice(0,10)+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
+  $("print-report").onclick=()=>window.print();
+  if(apiUrl())runApi(sub,srcs);
 }
+
+/* ---------- file reading: .txt, .docx, .pdf ---------- */
+const LIBS={
+  mammoth:"https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",
+  pdf:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+  pdfWorker:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"};
+const loaded={};
+function loadScript(src){return loaded[src]||(loaded[src]=new Promise((ok,bad)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{delete loaded[src];bad(new Error("Could not load the file reader. Check your internet connection."));};document.head.appendChild(s);}));}
+async function extractText(file){
+  const ext=(file.name.split(".").pop()||"").toLowerCase();
+  if(ext==="docx"){await loadScript(LIBS.mammoth);const r=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return r.value;}
+  if(ext==="pdf"){
+    await loadScript(LIBS.pdf);const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc=LIBS.pdfWorker;
+    const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;let out="";
+    for(let i=1;i<=doc.numPages;i++){const c=await (await doc.getPage(i)).getTextContent();for(const it of c.items){out+=it.str+(it.hasEOL?"\n":"");}out+="\n\n";}
+    out=out.replace(/(\w)-\n(\w)/g,"$1$2").replace(/[ \t]+\n/g,"\n");
+    if(!out.trim())throw new Error("This PDF has no text layer. It may be a scan; run OCR first.");
+    return out;}
+  if(ext==="doc")throw new Error("Old .doc files are not supported. Save the file as .docx and try again.");
+  return await file.text();
+}
+function readTxt(input,ta,after){
+  input.addEventListener("change",async e=>{
+    const f=e.target.files[0];if(!f)return;const prev=ta.value;ta.value="Reading "+f.name+"…";ta.disabled=true;
+    try{ta.value=(await extractText(f)).trim();if(after)after(f,null);}
+    catch(err){ta.value=prev;if(after)after(f,err);else alertInline(ta,err.message);}
+    finally{ta.disabled=false;ta.dispatchEvent(new Event("input"));e.target.value="";}
+  });
+}
+function alertInline(ta,msg){let n=ta.parentElement.querySelector(".file-err");if(!n){n=document.createElement("span");n.className="hint file-err";n.style.color="var(--crit)";ta.after(n);}n.textContent=msg;setTimeout(()=>n.remove(),6000);}
+
+/* ---------- optional API connection ---------- */
+const store={get:k=>{try{return localStorage.getItem(k)||"";}catch(e){return "";}},set:(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k);}catch(e){}}};
+let apiOn=false,apiReport="";
+const apiUrl=()=>apiOn?$("api-url").value.trim().replace(/\/+$/,""):"";
+function apiHeaders(){const h={"Content-Type":"application/json"};const k=$("api-key").value.trim();if(k)h["X-API-Key"]=k;return h;}
+function setStatus(t,c){const s=$("api-status");s.textContent=t;s.className="status "+(c||"");}
+async function testApi(){
+  const u=$("api-url").value.trim().replace(/\/+$/,"");
+  if(!/^https:\/\//i.test(u)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(u)){setStatus("Enter an address that starts with https://.","err");return;}
+  setStatus("Connecting…");
+  try{const r=await fetch(u+"/health",{headers:apiHeaders()});if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();
+    apiOn=true;store.set("pp-api-url",u);setStatus("Connected. Model: "+j.model+". Threshold "+j.threshold+".","ok");runCheck();}
+  catch(err){apiOn=false;setStatus("Could not reach the API ("+err.message+"). Check the address, and that the server allows this site in CORS_ORIGINS.","err");}
+}
+async function runApi(sub,srcs){
+  const box=$("api-result");if(!box)return;apiReport="";
+  box.innerHTML=`<span class="lab">Paraphrase check with contextual embeddings</span><p class="hint">Sending to the API…</p>`;
+  try{
+    const r=await fetch(apiUrl()+"/v1/compare",{method:"POST",headers:apiHeaders(),body:JSON.stringify({submission:sub,sources:srcs.map((s,i)=>({id:String(i+1),text:s.text}))})});
+    const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.detail?(typeof j.detail==="string"?j.detail:"invalid request"):"HTTP "+r.status);
+    const name=id=>srcs[+id-1]?srcs[+id-1].name:id;
+    const pairs=j.sources.flatMap(s=>s.matches.map(m=>({...m,src:s.source_id}))).sort((a,b)=>b.cosine-a.cosine);
+    apiReport=[`Paraphrase check (API, model ${j.model}, threshold ${j.threshold}):`,`${pct(j.overall_flagged_share)} of ${j.submission_sentences} submission sentences have a close match.`,
+      ...j.sources.map(s=>`[${s.source_id}] ${name(s.source_id)}: flagged ${pct(s.semantic.flagged_share)}, mean best cosine ${s.semantic.mean_best_cosine.toFixed(3)}`),
+      ...pairs.map(p=>`[${p.src}] cos ${p.cosine.toFixed(3)}: "${p.submission_sentence}" ~ "${p.source_sentence}"`)].join("\n");
+    box.innerHTML=`<span class="lab">Paraphrase check with contextual embeddings</span>
+    <div class="verdict"><span class="pill ${j.overall_flagged_share<.15?"ok":j.overall_flagged_share<=.4?"warn":"crit"}">${pct(j.overall_flagged_share)} of sentences</span><span>have a close match in meaning (cosine ≥ ${j.threshold}) across ${j.sources.length} sources.</span></div>
+    ${pairs.length?`<ul class="pairs">${pairs.slice(0,10).map(p=>`<li><span>${esc(p.submission_sentence)}</span><span class="cos">${p.cosine.toFixed(3)}</span><span class="from"><span class="chip ${cls(+p.src)}">${p.src}</span>${esc(p.source_sentence)}</span></li>`).join("")}</ul>`:`<p class="hint">No sentence pair reached the threshold.</p>`}
+    <span class="hint">Model: ${esc(j.model)}</span>`;
+    const hint=$("api-hint");if(hint)hint.remove();
+  }catch(err){box.innerHTML=`<span class="lab">Paraphrase check with contextual embeddings</span><p class="status err">The API check failed: ${esc(err.message)}. The browser results above are still valid.</p>`;}
+}
+const fullReport=()=>lastReport+(apiReport?"\n\n"+apiReport:"");
 
 /* ---------- authorship ---------- */
 const FW="the of and to a in that is was it for on with as be at by this had not are but from or have an they which one were all there when we what your can said if do will each about how up out them then she many some so these would other into has more her two like him see time could no make than first been its who now my over did down only way find use may и в не на что он с как а то все она так его но да к у же за бы по только ее мне было вот от еще нет о из ему когда даже если уже или ни быть был до для мы они это этот при также чтобы который может есть более между однако және мен бен пен да де та те бұл ол сол осы үшін туралы бойынша деп еді екен емес бар жоқ не немесе бірақ өйткені сондықтан егер қандай қалай тағы ғана әрі сияқты кейін дейін арқылы өте ең көп бір болып болды болған деген керек қажет".split(" ");
@@ -606,7 +731,10 @@ $("f-auth").addEventListener("submit",e=>{e.preventDefault();runAuth();});
 $("add-src").onclick=()=>addSource();
 $("add-cand").onclick=()=>addCand();
 $("clear-check").onclick=()=>{$("sub").value="";$("sources").innerHTML="";srcN=0;addSource();subCount();$("ex-note").textContent="";runCheck();};
-readTxt($("sub-file"),$("sub"),f=>$("ex-note").textContent="Loaded "+f.name+".");
+readTxt($("sub-file"),$("sub"),(f,err)=>{const n=$("ex-note");n.textContent=err?err.message:"Loaded "+f.name+".";n.style.color=err?"var(--crit)":"";});
+$("api-url").value=store.get("pp-api-url");
+$("api-test").onclick=testApi;
+$("api-off").onclick=()=>{apiOn=false;apiReport="";store.set("pp-api-url","");$("api-url").value="";$("api-key").value="";setStatus("Not connected. Checks run in the browser only.");runCheck();};
 $("k").addEventListener("change",runCheck);
 runCheck();runAuth();
 
