@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDU NLP Plagiarism and Authorship Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a working tool. Slim top bar with three views; inputs left, report right; docs as a two-column manual. */
+:root{
+  --paper:#f4f6f5; --surface:#ffffff; --ink:#15211f; --muted:#5a6966; --line:#d5dcda;
+  --accent:#0b6659; --accent-ink:#ffffff; --accent-soft:#e1efec;
+  --m1:#ffe27a; --m2:#b9e0ff; --m3:#ffcbc4; --m4:#cdeeb9;
+  --ok:#1f7a45; --warn:#9a6200; --crit:#b3261e;
+  --code-bg:#eef1f0;
+  --display:"IBM Plex Serif",Georgia,serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#101615; --surface:#182120; --ink:#e6eceb; --muted:#9aa9a6; --line:#2c3937;
+    --accent:#5fc7b5; --accent-ink:#06211d; --accent-soft:#1c3531;
+    --m1:#6f5b0c; --m2:#1c4c70; --m3:#742e27; --m4:#2e5a22;
+    --ok:#6cc88f; --warn:#e3b04f; --crit:#f08a82; --code-bg:#0c1211;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101615; --surface:#182120; --ink:#e6eceb; --muted:#9aa9a6; --line:#2c3937;
+  --accent:#5fc7b5; --accent-ink:#06211d; --accent-soft:#1c3531;
+  --m1:#6f5b0c; --m2:#1c4c70; --m3:#742e27; --m4:#2e5a22;
+  --ok:#6cc88f; --warn:#e3b04f; --crit:#f08a82; --code-bg:#0c1211;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:1.7rem} h2{font-size:1.3rem} h3{font-size:1.05rem;font-family:var(--body)}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;padding-top:10px;padding-bottom:10px}
+.brand{display:flex;flex-direction:column;margin-right:auto}
+.brand b{font-family:var(--display);font-size:1.05rem}
+.brand span{font-size:.78rem;color:var(--muted)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:7px 14px;border-radius:6px;text-decoration:none;color:var(--ink);font-weight:500;font-size:.95rem}
+nav a:hover{background:var(--accent-soft)}
+nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+main{padding:28px 0 64px}
+.view{display:none} .view.on{display:block}
+.intro{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;max-width:70ch}
+.intro p{color:var(--muted)}
+.notice{border-left:4px solid var(--warn);background:var(--surface);padding:10px 14px;font-size:.9rem;border-radius:0 6px 6px 0;margin-bottom:22px;max-width:90ch}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px;align-items:start}
+@media (max-width:880px){.cols{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+label,.lab{font-weight:600;font-size:.9rem}
+.count{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+textarea,input[type=text]{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:9px 10px}
+textarea{resize:vertical;min-height:110px;line-height:1.45}
+.src{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.src-head{display:flex;gap:8px;align-items:center}
+.src-head input{flex:1;font-weight:500}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{font:inherit;font-weight:500;cursor:pointer;border-radius:6px;padding:8px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button.x{padding:4px 9px;color:var(--muted)}
+.filebtn{font-size:.82rem;color:var(--accent);cursor:pointer;text-decoration:underline}
+.filebtn input{position:absolute;width:1px;height:1px;opacity:0}
+.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.tiles{grid-template-columns:minmax(0,1fr)}}
+.tile{border:1px solid var(--line);border-radius:6px;padding:12px}
+.tile .n{font-family:var(--display);font-size:1.7rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile .l{font-size:.8rem;color:var(--muted)}
+.pill{display:inline-block;font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:99px;border:1.5px solid currentColor}
+.pill.ok{color:var(--ok)} .pill.warn{color:var(--warn)} .pill.crit{color:var(--crit)}
+.verdict{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.92rem}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:6px;background:var(--line);border-radius:3px;min-width:70px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.doc{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-size:.93rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;max-height:340px;overflow-y:auto}
+mark{background:var(--m1);color:var(--ink);border-radius:2px;padding:1px 0}
+mark.s2{background:var(--m2)} mark.s3{background:var(--m3)} mark.s4{background:var(--m4)}
+mark sup,.chip{font-size:.68rem;font-weight:600;font-family:var(--mono)}
+mark sup{margin-left:2px}
+.chip{display:inline-block;min-width:1.5em;text-align:center;padding:1px 5px;border-radius:3px;background:var(--m1);margin-right:6px}
+.chip.s2{background:var(--m2)} .chip.s3{background:var(--m3)} .chip.s4{background:var(--m4)}
+select{font:inherit;font-size:.9rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.head-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.passages{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.passages li{border-left:3px solid var(--line);padding:2px 0 2px 10px;font-size:.88rem}
+.project{background:var(--accent-soft);border-radius:8px;padding:14px 18px;margin-bottom:22px;display:flex;flex-direction:column;gap:2px;max-width:90ch}
+.project small{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.project b{font-family:var(--display);font-size:1.15rem;line-height:1.3}
+.about{display:flex;flex-direction:column;gap:30px;max-width:80ch}
+.about section{display:flex;flex-direction:column;gap:12px}
+.about ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+dl.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 20px;margin:0}
+dl.facts dt{color:var(--muted);font-size:.88rem} dl.facts dd{margin:0}
+tr.here td{background:var(--accent-soft)}
+.hint{font-size:.82rem;color:var(--muted)}
+.best td{background:var(--accent-soft)}
+/* docs */
+.docs{display:grid;grid-template-columns:220px minmax(0,1fr);gap:36px;align-items:start}
+@media (max-width:880px){.docs{grid-template-columns:minmax(0,1fr)}.toc{position:static!important}}
+.toc{position:sticky;top:84px;display:flex;flex-direction:column;gap:2px;font-size:.9rem}
+.toc b{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.toc button{text-align:left;border:0;background:none;padding:5px 8px;color:var(--ink);font-weight:400}
+.toc button:hover{background:var(--accent-soft)}
+.manual{display:flex;flex-direction:column;gap:34px;max-width:74ch}
+.manual section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:84px}
+.manual ul,.manual ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.5}
+code{font-family:var(--mono);font-size:.88em;background:var(--code-bg);padding:1px 4px;border-radius:3px}
+pre code{background:none;padding:0;font-size:inherit}
+.ep{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.verb{font-family:var(--mono);font-size:.78rem;font-weight:500;background:var(--accent);color:var(--accent-ink);padding:2px 8px;border-radius:4px}
+footer{border-top:1px solid var(--line);padding:18px 0;font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>Plagiarism and Authorship Platform</b><span>SDU NLP · Project “Advancing Plagiarism Detection through Contextual Embeddings”</span></div>
+    <nav aria-label="Views">
+      <a href="#check" data-v="check">Similarity check</a>
+      <a href="#authorship" data-v="authorship">Authorship</a>
+      <a href="#docs" data-v="docs">Documentation</a>
+      <a href="#about" data-v="about">About the project</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= CHECK ================= -->
+<div class="view" id="v-check">
+  <div class="project"><small>Research project</small><b>Advancing Plagiarism Detection through Contextual Embeddings</b><span class="hint">SDU University, Kaskelen, Kazakhstan · 2024 to 2026 · <a href="#about">About the project</a></span></div>
+  <div class="intro">
+    <h1>Check a submission against sources</h1>
+    <p>Paste a student text and one or more reference texts. The report shows how much of the submission also appears in each source and highlights the matched passages.</p>
+  </div>
+  <p class="notice"><b>What runs on this page.</b> The checks here are the lexical baselines (shared word sequences and term overlap) and run entirely in your browser. No text leaves your device. Paraphrase detection with contextual embeddings runs on the project API server, described under <a href="#docs">Documentation</a>.</p>
+  <div class="cols">
+    <form class="panel" id="f-check">
+      <div class="field">
+        <div class="field-head"><label for="sub">Submission</label>
+          <span><label class="filebtn">Load a .txt file<input type="file" id="sub-file" accept=".txt,text/plain"></label> · <span class="count" id="sub-count"></span></span></div>
+        <textarea id="sub" rows="9"></textarea>
+      </div>
+      <div class="field">
+        <span class="lab">Sources</span>
+        <div id="sources" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <div class="field">
+        <label for="k">Shortest word sequence that counts as a match</label>
+        <div class="row"><select id="k"><option value="3" selected>3 words (most sensitive)</option><option value="4">4 words</option><option value="5">5 words (fewest chance matches)</option></select></div>
+      </div>
+      <div class="row">
+        <button type="submit" class="primary">Run check</button>
+        <button type="button" id="add-src">Add a source</button>
+        <button type="button" id="clear-check">Clear all</button>
+        <span class="hint" id="ex-note">Example texts are loaded.</span>
+      </div>
+    </form>
+    <div class="panel" id="r-check" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ================= AUTHORSHIP ================= -->
+<div class="view" id="v-authorship">
+  <div class="intro">
+    <h1>Compare writing style</h1>
+    <p>Give a questioned text and writing samples from one or more candidate authors. The report ranks candidates by how closely their style matches the questioned text.</p>
+  </div>
+  <p class="notice"><b>Read the result as a ranking.</b> This page uses a stylometric baseline (character patterns, function words, sentence and punctuation habits). It needs at least about 150 words per text, and it is evidence for a human reviewer to weigh. It does not decide who wrote a text.</p>
+  <div class="cols">
+    <form class="panel" id="f-auth">
+      <div class="field">
+        <div class="field-head"><label for="q">Questioned text</label><span class="count" id="q-count"></span></div>
+        <textarea id="q" rows="8"></textarea>
+      </div>
+      <div class="field">
+        <span class="lab">Candidate authors</span>
+        <div id="cands" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+      <div class="row">
+        <button type="submit" class="primary">Compare style</button>
+        <button type="button" id="add-cand">Add a candidate</button>
+        <span class="hint">Example texts are loaded.</span>
+      </div>
+    </form>
+    <div class="panel" id="r-auth" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ================= DOCS ================= -->
+<div class="view" id="v-docs">
+  <div class="intro">
+    <h1>Documentation</h1>
+    <p>Open-access guide to using the platform, calling the API, and connecting it to a learning management system.</p>
+  </div>
+  <div class="docs">
+    <div class="toc" id="toc"><b>On this page</b></div>
+    <div class="manual" id="manual">
+
+      <section id="d-overview"><h2>Overview</h2>
+        <p>The platform helps instructors and integrity officers answer two questions about a student text: does it reuse text from known sources, and is its writing style consistent with the claimed author. It was built in the research project <i>Advancing Plagiarism Detection through Contextual Embeddings</i> at SDU NLP, SDU University. See <a href="#about">About the project</a>.</p>
+        <p>It has three parts:</p>
+        <ul>
+          <li><b>This web page.</b> A similarity check and a style comparison that run in the browser with baseline methods. Use it for quick checks and for teaching what the scores mean.</li>
+          <li><b>The API server.</b> A small HTTP service that scores texts with a contextual embedding model. This is the part that detects paraphrased passages. Other systems call it.</li>
+          <li><b>LMS integration.</b> A documented way to call the API from Moodle, Canvas or any other platform when a student submits work.</li>
+        </ul>
+      </section>
+
+      <section id="d-quick"><h2>Quick start for instructors</h2>
+        <ol>
+          <li>Open <a href="#check">Similarity check</a>. Paste the student text into <b>Submission</b>.</li>
+          <li>Paste each reference text into a <b>Source</b> box and give it a short name. Use <b>Add a source</b> for more.</li>
+          <li>Select <b>Run check</b>. Read the matched-text share first, then the per-source table, then the highlighted passages. Each highlight carries the number of its source.</li>
+          <li>Select <b>Copy report</b> to paste a plain-text summary into an email or a case file.</li>
+          <li>For a style question, open <a href="#authorship">Authorship</a>, paste the questioned text, add earlier work by the student and by at least one other writer, and select <b>Compare style</b>.</li>
+        </ol>
+        <p>Texts may be in any language written with spaces between words, including Kazakh, Russian and English. The function-word feature in the style comparison covers English, Russian and Kazakh and is skipped for other languages.</p>
+      </section>
+
+      <section id="d-scores"><h2>How to read the scores</h2>
+        <div class="tablebox"><table>
+          <tr><th>Score</th><th>What it measures</th><th>Where</th></tr>
+          <tr><td><b>Matched text</b></td><td>Share of the submission's words that sit inside a word sequence (three words by default) also found in a source. Catches copied and lightly edited text.</td><td>Page, API (<code>containment</code>)</td></tr>
+          <tr><td><b>Jaccard</b></td><td>Shared three-word sequences divided by all three-word sequences in both texts. Low when the texts differ a lot in length.</td><td>Page, API</td></tr>
+          <tr><td><b>Term cosine</b></td><td>Cosine between the word-count vectors of the two texts. High for texts on the same topic, even with no copying.</td><td>Page</td></tr>
+          <tr><td><b>Longest run</b></td><td>Longest unbroken stretch of matched words.</td><td>Page</td></tr>
+          <tr><td><b>Flagged share</b></td><td>Share of submission sentences whose embedding has a cosine at or above the threshold with some source sentence. Catches paraphrase.</td><td>API</td></tr>
+          <tr><td><b>Style similarity</b></td><td>Combined closeness of two texts in character trigrams, function words and sentence and punctuation habits.</td><td>Page</td></tr>
+        </table></div>
+        <p>The page labels matched text below 15% as low, 15% to 40% as moderate and above 40% as high. These bands are a reading aid. Correctly quoted and cited passages also count as matches, so a reviewer always has to look at the highlighted text before drawing a conclusion.</p>
+      </section>
+
+      <section id="d-method"><h2>Method</h2>
+        <h3>Lexical baselines</h3>
+        <p>Texts are lower-cased and split into words. Every run of three consecutive words is a shingle. The page lets you raise this to four or five words to ignore short chance matches. Jaccard and matched-text share are computed from the two shingle sets. Term cosine uses raw word counts.</p>
+        <h3>Contextual embeddings</h3>
+        <p>The API splits each text into sentences and encodes every sentence with a transformer sentence encoder. Vectors are normalised, so the dot product of two vectors is their cosine similarity:</p>
+        <pre><code>cos(a, b) = (a · b) / (‖a‖ ‖b‖)</code></pre>
+        <p>For each submission sentence the API finds the most similar source sentence. A pair at or above the threshold (default 0.80) is returned as a match. Because the encoder represents meaning in context, a reworded sentence still lands close to its original, where the shingle methods see nothing. The second example source on the check page shows this gap: it is a paraphrase and gets a low lexical score.</p>
+        <h3>Style comparison</h3>
+        <p>On this page, style similarity is a weighted mean of character-trigram cosine (0.5), function-word cosine (0.3) and closeness of seven scalar habits such as mean sentence length and commas per 100 words (0.2). On the API, each author is represented by the mean embedding of their sentences and candidates are ranked by cosine to the questioned text.</p>
+      </section>
+
+      <section id="d-api"><h2>API reference</h2>
+        <p>The reference server is one Python file, <code>server.py</code>, built with FastAPI. All requests and responses are JSON in UTF-8.</p>
+        <pre><code>pip install fastapi uvicorn sentence-transformers
+uvicorn server:app --host 0.0.0.0 --port 8000</code></pre>
+        <div class="tablebox"><table>
+          <tr><th>Setting</th><th>Meaning</th><th>Default</th></tr>
+          <tr><td><code>MODEL_NAME</code></td><td>Sentence encoder for <code>/v1/compare</code>. Set it to the path of the project's fine-tuned model.</td><td><code>paraphrase-multilingual-MiniLM-L12-v2</code></td></tr>
+          <tr><td><code>STYLE_MODEL_NAME</code></td><td>Encoder for <code>/v1/authorship</code>. A general sentence model mostly captures topic, so set this to the project's style model.</td><td>same as <code>MODEL_NAME</code></td></tr>
+          <tr><td><code>SIM_THRESHOLD</code></td><td>Cosine at or above which a sentence pair is flagged.</td><td><code>0.80</code></td></tr>
+          <tr><td><code>API_KEY</code></td><td>If set, every POST must carry it in the <code>X-API-Key</code> header.</td><td>not set</td></tr>
+          <tr><td><code>CORS_ORIGINS</code></td><td>Comma-separated browser origins allowed to call the API.</td><td>none</td></tr>
+        </table></div>
+
+        <div class="ep"><span class="verb">GET</span><code>/health</code></div>
+        <p>Returns the server status, the loaded model names and the threshold.</p>
+
+        <div class="ep"><span class="verb">POST</span><code>/v1/compare</code></div>
+        <p>Compares one submission with 1 to 50 sources. <code>threshold</code> is optional.</p>
+        <pre><code>curl -X POST http://localhost:8000/v1/compare \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_KEY" \
+  -d '{
+    "submission": "Text of the student work ...",
+    "sources": [
+      {"id": "library-0142", "text": "Text of a reference document ..."}
+    ],
+    "threshold": 0.8
+  }'</code></pre>
+        <pre><code>{
+  "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "threshold": 0.8,
+  "submission_sentences": 12,
+  "overall_flagged_share": 0.25,
+  "sources": [
+    {
+      "source_id": "library-0142",
+      "lexical":  {"jaccard": 0.0412, "containment": 0.1037},
+      "semantic": {"mean_best_cosine": 0.6121, "flagged_share": 0.25},
+      "matches": [
+        {"submission_sentence": "...", "source_sentence": "...", "cosine": 0.9134}
+      ]
+    }
+  ]
+}</code></pre>
+        <p class="hint">The numbers above show the response shape. They are not measured results.</p>
+
+        <div class="ep"><span class="verb">POST</span><code>/v1/authorship</code></div>
+        <p>Ranks candidate authors by style similarity to a questioned text.</p>
+        <pre><code>{
+  "questioned": "Text whose authorship is in question ...",
+  "candidates": [
+    {"id": "student-17", "samples": ["Earlier essay ...", "Another essay ..."]},
+    {"id": "student-23", "samples": ["Earlier essay ..."]}
+  ]
+}</code></pre>
+        <pre><code>{
+  "model": "...",
+  "questioned_sentences": 9,
+  "ranking": [
+    {"candidate_id": "student-17", "sentences": 31, "style_cosine": 0.8420},
+    {"candidate_id": "student-23", "sentences": 14, "style_cosine": 0.7015}
+  ]
+}</code></pre>
+
+        <h3>Errors</h3>
+        <ul>
+          <li><code>401</code>: the <code>X-API-Key</code> header is missing or wrong.</li>
+          <li><code>422</code>: the body is malformed, a text exceeds 200,000 characters, or a text has no sentence of three or more words.</li>
+        </ul>
+
+        <h3>Python client</h3>
+        <pre><code>import requests
+
+r = requests.post(
+    "http://localhost:8000/v1/compare",
+    headers={"X-API-Key": "YOUR_KEY"},
+    json={"submission": essay, "sources": [{"id": "s1", "text": reference}]},
+    timeout=120,
+)
+r.raise_for_status()
+report = r.json()
+print(report["overall_flagged_share"])
+for m in report["sources"][0]["matches"]:
+    print(round(m["cosine"], 2), m["submission_sentence"])</code></pre>
+      </section>
+
+      <section id="d-lms"><h2>Connecting a learning management system</h2>
+        <p>The API is stateless, so any platform that can send an HTTP request when a student submits work can use it. The flow is the same everywhere:</p>
+        <ol>
+          <li><b>Trigger.</b> The LMS signals that a submission was created or updated.</li>
+          <li><b>Extract.</b> A connector reads the submitted file and converts it to plain text.</li>
+          <li><b>Select sources.</b> The connector gathers the comparison texts: other submissions to the same assignment, the institution's archive, and any course readings.</li>
+          <li><b>Score.</b> The connector posts the submission and sources to <code>/v1/compare</code>.</li>
+          <li><b>Report.</b> The connector stores the response and shows the instructor the flagged share and the matched sentence pairs next to the submission.</li>
+        </ol>
+        <h3>Moodle</h3>
+        <p>Moodle provides a plugin type for this purpose, <code>plagiarism</code>. A plagiarism plugin receives assignment submissions through Moodle's event system, can queue work as a scheduled task, and can add a link or score beside each submission in the grading view. Implement steps 2 to 5 inside the plugin's task and keep the API address and key in the plugin's admin settings.</p>
+        <h3>Canvas, Blackboard and others</h3>
+        <p>Platforms that support LTI 1.3 can launch an external tool from an assignment. Host a small web application that receives the launch, fetches the submission, calls the API and renders the report. Platforms without LTI can call the API from a nightly script that reads submissions through the platform's own REST API.</p>
+        <h3>Deployment checklist</h3>
+        <ul>
+          <li>Run the server on institutional infrastructure and serve it over HTTPS behind a reverse proxy.</li>
+          <li>Set <code>API_KEY</code> and give each connecting system its own network rule.</li>
+          <li>A GPU is recommended for large batches. The default model also runs on a CPU for single documents.</li>
+          <li>Send long documents in parts of up to 200,000 characters.</li>
+        </ul>
+      </section>
+
+      <section id="d-privacy"><h2>Privacy and responsible use</h2>
+        <ul>
+          <li>This web page processes text in the browser. It sends nothing to a server and keeps nothing after the tab is closed.</li>
+          <li>The reference API server does not write request texts to disk. Institutions that add logging or an archive should tell students and follow their data protection rules.</li>
+          <li>Replace student names with pseudonymous identifiers in <code>id</code> fields.</li>
+          <li>A score is a prompt for review. Decisions about misconduct belong to people who have read the passages and heard the student.</li>
+        </ul>
+      </section>
+
+      <section id="d-limits"><h2>Known limitations</h2>
+        <ul>
+          <li>The browser checks miss paraphrase and translation. Use the API for those.</li>
+          <li>Short texts give unstable scores. Treat anything under about 150 words with caution.</li>
+          <li>Languages written without spaces between words are not tokenised correctly on this page.</li>
+          <li>Style comparison is affected by topic and genre. Compare texts of the same kind where possible.</li>
+          <li>The check only finds overlap with the sources supplied. It does not search the web.</li>
+        </ul>
+      </section>
+
+      <section id="d-cite"><h2>Source, licence and citation</h2>
+        <p>The documentation on this page is open access. The repository address, software licence and the reference to cite will be listed here by the project team when the release is tagged.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<div class="view" id="v-about">
+  <div class="intro">
+    <p class="hint">Research project</p>
+    <h1>Advancing Plagiarism Detection through Contextual Embeddings</h1>
+    <p>This platform is the public output of task 3.3, User-Friendly Integration and Documentation.</p>
+  </div>
+  <div class="about">
+    <section>
+      <dl class="facts">
+        <dt>Host organisation</dt><dd>SDU University (Suleyman Demirel University), Kaskelen, Kazakhstan</dd>
+        <dt>Research group</dt><dd>SDU NLP</dd>
+        <dt>Principal investigator</dt><dd>Shirali Kadyrov, PhD, Professor</dd>
+        <dt>Project period</dt><dd>1 January 2024 to 31 December 2026 (36 months)</dd>
+        <dt>Funding</dt><dd>Grant funding for scientific and scientific-technical projects. The grant number will be added by the project team.</dd>
+      </dl>
+    </section>
+    <section><h2>Goal</h2>
+      <p>To improve plagiarism detection by integrating contextual embeddings from transformer language models, so that a detector understands similarity of meaning and writing style and is not limited to matching identical strings.</p>
+    </section>
+    <section><h2>Objectives</h2>
+      <ul>
+        <li><b>Objective 1.</b> Develop contextual embedding models for a style-based AI detector.</li>
+        <li><b>Objective 2.</b> Integrate contextual embeddings into plagiarism detection algorithms such as Jaccard and cosine similarity.</li>
+        <li><b>Objective 3.</b> Validate and optimise the system with an academic corpus, and make it available to educational platforms with open documentation.</li>
+      </ul>
+    </section>
+    <section><h2>Work plan</h2>
+      <div class="tablebox"><table>
+        <tr><th>Task</th><th>Title</th><th>Period</th></tr>
+        <tr><td>1.1</td><td>Dataset collection and preprocessing</td><td>Jan to Jun 2024</td></tr>
+        <tr><td>1.2</td><td>Model training and optimisation for plagiarism detection</td><td>Jul to Dec 2024</td></tr>
+        <tr><td>1.3</td><td>Technological readiness assessment</td><td>Jan to Mar 2025</td></tr>
+        <tr><td>2.1</td><td>Algorithm compatibility analysis</td><td>Apr to Jun 2025</td></tr>
+        <tr><td>2.2</td><td>Integration development and testing</td><td>Jul to Sep 2025</td></tr>
+        <tr><td>2.3</td><td>Adaptability assessment</td><td>Oct to Dec 2025</td></tr>
+        <tr><td>3.1</td><td>Collaborative partnership establishment</td><td>Jan to Mar 2026</td></tr>
+        <tr><td>3.2</td><td>System validation in real-world settings</td><td>Apr to Jun 2026</td></tr>
+        <tr class="here"><td>3.3</td><td><b>User-friendly integration and documentation</b><div class="hint">This platform and its documentation</div></td><td>Jul to Dec 2026</td></tr>
+      </table></div>
+    </section>
+    <section><h2>How the platform relates to the project</h2>
+      <ul>
+        <li>The <a href="#check">similarity check</a> exposes the baseline algorithms from Objective 2 in a form instructors can use without installing anything.</li>
+        <li>The API server described in the <a href="#docs">documentation</a> is where the project's embedding models from Objective 1 are loaded and served to other systems.</li>
+        <li>The <a href="#authorship">authorship view</a> gives a first, transparent reading of writing style, the second research line of the project.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+</main>
+<footer><div class="wrap">Project “Advancing Plagiarism Detection through Contextual Embeddings”, SDU NLP, SDU University. Scores support human review and do not replace it.</div></footer>
+
+<script>
+"use strict";
+/* ---------- text utilities ---------- */
+const WORD=/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct=x=>(100*x).toFixed(1)+"%";
+function tokens(t){const o=[];for(const m of t.matchAll(WORD))o.push({w:m[0].toLowerCase(),s:m.index,e:m.index+m[0].length});return o;}
+function counts(arr){const m=new Map();for(const x of arr)m.set(x,(m.get(x)||0)+1);return m;}
+function cosine(a,b){let d=0,na=0,nb=0;for(const[k,v]of a){na+=v*v;const w=b.get(k);if(w)d+=v*w;}for(const v of b.values())nb+=v*v;return na&&nb?d/Math.sqrt(na*nb):0;}
+function longestRun(c){let best=0,cur=0;for(const x of c){cur=x?cur+1:0;if(cur>best)best=cur;}return best;}
+
+/* ---------- similarity check ---------- */
+let K=3;
+function shingleSet(tok){const s=new Set();for(let i=0;i+K<=tok.length;i++){let g=tok[i].w;for(let j=1;j<K;j++)g+=" "+tok[i+j].w;s.add(g);}return s;}
+function compareTexts(sub,sources){
+  const st=tokens(sub),grams=[];
+  for(let i=0;i+K<=st.length;i++){let g=st[i].w;for(let j=1;j<K;j++)g+=" "+st[i+j].w;grams.push(g);}
+  const ss=new Set(grams),tf=counts(st.map(t=>t.w)),owner=new Uint8Array(st.length);
+  const rows=sources.map((src,si)=>{
+    const tk=tokens(src.text),set=shingleSet(tk),cov=new Uint8Array(st.length);let inter=0;
+    for(const s of ss)if(set.has(s))inter++;
+    grams.forEach((g,i)=>{if(set.has(g))for(let j=i;j<i+K;j++){cov[j]=1;if(!owner[j])owner[j]=si+1;}});
+    const union=ss.size+set.size-inter,runs=[];
+    for(let i=0;i<st.length;i++){if(!cov[i])continue;let j=i;while(j+1<st.length&&cov[j+1])j++;runs.push({words:j-i+1,text:sub.slice(st[i].s,st[j].e)});i=j;}
+    return{idx:si+1,name:src.name,words:tk.length,jaccard:union?inter/union:0,
+      containment:st.length?cov.reduce((a,b)=>a+b,0)/st.length:0,
+      cosine:cosine(tf,counts(tk.map(t=>t.w))),run:longestRun(cov),runs};
+  });
+  let m=0;for(const o of owner)if(o)m++;
+  return{tok:st,owner,rows,matched:st.length?m/st.length:0,run:longestRun(owner)};
+}
+const cls=i=>"s"+((i-1)%4+1);
+function highlight(text,tok,owner){
+  let out="",pos=0,i=0;
+  while(i<tok.length){
+    if(!owner[i]){i++;continue;}
+    let j=i;while(j+1<tok.length&&owner[j+1]===owner[i])j++;
+    out+=esc(text.slice(pos,tok[i].s))+`<mark class="${cls(owner[i])}">`+esc(text.slice(tok[i].s,tok[j].e))+`<sup>${owner[i]}</sup></mark>`;pos=tok[j].e;i=j+1;
+  }
+  return out+esc(text.slice(pos));
+}
+const $=id=>document.getElementById(id);
+function readTxt(input,ta,after){input.addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{ta.value=String(r.result);ta.dispatchEvent(new Event("input"));if(after)after(f);};r.readAsText(f);});}
+let srcN=0;
+function addSource(name,text){
+  srcN++;const d=document.createElement("div");d.className="src";
+  d.innerHTML=`<div class="src-head"><input type="text" id="src-name-${srcN}" aria-label="Source name" value="${esc(name||"Source "+srcN)}"><button type="button" class="x" aria-label="Remove this source">Remove</button></div><textarea id="src-text-${srcN}" rows="5" aria-label="Source text"></textarea><label class="filebtn">Load a .txt file<input type="file" id="src-file-${srcN}" accept=".txt,text/plain"></label>`;
+  d.querySelector("textarea").value=text||"";
+  d.querySelector("button").onclick=()=>d.remove();
+  readTxt(d.querySelector("input[type=file]"),d.querySelector("textarea"));
+  $("sources").appendChild(d);
+}
+let lastReport="";
+function runCheck(){
+  K=+$("k").value;
+  const sub=$("sub").value,srcs=[...$("sources").children].map(d=>({name:d.querySelector("input").value.trim()||"Unnamed source",text:d.querySelector("textarea").value})).filter(s=>s.text.trim());
+  const box=$("r-check"),n=tokens(sub).length;
+  if(n<K||!srcs.length){lastReport="";box.innerHTML=`<h2>Report</h2><p class="hint">Enter a submission of at least ${K} words and at least one source, then select Run check.</p>`;return;}
+  const r=compareTexts(sub,srcs),band=r.matched<.15?["ok","Low overlap"]:r.matched<=.4?["warn","Moderate overlap"]:["crit","High overlap"];
+  const rows=[...r.rows].sort((a,b)=>b.containment-a.containment);
+  const passages=r.rows.flatMap(x=>x.runs.map(p=>({...p,idx:x.idx,name:x.name}))).sort((a,b)=>b.words-a.words);
+  const shown=passages.slice(0,8);
+  lastReport=[`Similarity report`,`Project: Advancing Plagiarism Detection through Contextual Embeddings (SDU NLP)`,`Method: shared sequences of ${K} words, lexical baseline`,``,
+    `Result: ${band[1]}. ${pct(r.matched)} of the submission's ${n} words match a source. Longest matched run: ${r.run} words.`,``,`Per source:`,
+    ...rows.map(x=>`[${x.idx}] ${x.name}: matched text ${pct(x.containment)}, Jaccard ${x.jaccard.toFixed(3)}, term cosine ${x.cosine.toFixed(2)}, longest run ${x.run} words`),``,
+    `Matched passages (${passages.length}):`,...passages.map(p=>`[${p.idx}] ${p.words} words: "${p.text.replace(/\s+/g," ")}"`),``,
+    `This score supports human review. Quoted and cited text also counts as a match.`].join("\n");
+  box.innerHTML=`<div class="head-row"><h2>Report</h2><button type="button" id="copy-report">Copy report</button></div>
+  <div class="verdict"><span class="pill ${band[0]}">${band[1]}</span><span>${pct(r.matched)} of the submission's ${n} words match a source.</span></div>
+  <div class="tiles">
+    <div class="tile"><div class="n">${pct(r.matched)}</div><div class="l">Matched text, all sources</div></div>
+    <div class="tile"><div class="n">${r.run}</div><div class="l">Longest matched run, words</div></div>
+    <div class="tile"><div class="n">${Math.max(...r.rows.map(x=>x.cosine)).toFixed(2)}</div><div class="l">Highest term cosine</div></div>
+  </div>
+  <div class="tablebox"><table><tr><th>Source</th><th class="num">Matched text</th><th class="num">Jaccard</th><th class="num">Term cosine</th><th class="num">Longest run</th></tr>
+  ${rows.map(x=>`<tr><td><span class="chip ${cls(x.idx)}">${x.idx}</span>${esc(x.name)}<div class="hint">${x.words} words</div></td><td class="num">${pct(x.containment)}<div class="bar"><i style="width:${(100*x.containment).toFixed(1)}%"></i></div></td><td class="num">${x.jaccard.toFixed(3)}</td><td class="num">${x.cosine.toFixed(2)}</td><td class="num">${x.run}</td></tr>`).join("")}</table></div>
+  <div class="field"><span class="lab">Submission with matched passages highlighted</span><div class="doc">${highlight(sub,r.tok,r.owner)}</div><span class="hint">The small number after a highlight is the source it matches.</span></div>
+  ${passages.length?`<div class="field"><span class="lab">Matched passages, longest first</span><ul class="passages">${shown.map(p=>`<li><span class="chip ${cls(p.idx)}">${p.idx}</span><b>${p.words} words</b> · ${esc(p.text)}</li>`).join("")}</ul>${passages.length>shown.length?`<span class="hint">${passages.length-shown.length} shorter passages are included in the copied report.</span>`:""}</div>`:""}
+  <p class="hint">A source with a high term cosine and little matched text covers the same topic in different words. That pattern can be coincidence or paraphrase. The API's embedding check separates the two.</p>`;
+  $("copy-report").onclick=async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(lastReport);b.textContent="Copied";}catch(err){b.textContent="Copying is blocked in this viewer";}setTimeout(()=>b.textContent="Copy report",2500);};
+}
+
+/* ---------- authorship ---------- */
+const FW="the of and to a in that is was it for on with as be at by this had not are but from or have an they which one were all there when we what your can said if do will each about how up out them then she many some so these would other into has more her two like him see time could no make than first been its who now my over did down only way find use may и в не на что он с как а то все она так его но да к у же за бы по только ее мне было вот от еще нет о из ему когда даже если уже или ни быть был до для мы они это этот при также чтобы который может есть более между однако және мен бен пен да де та те бұл ол сол осы үшін туралы бойынша деп еді екен емес бар жоқ не немесе бірақ өйткені сондықтан егер қандай қалай тағы ғана әрі сияқты кейін дейін арқылы өте ең көп бір болып болды болған деген керек қажет".split(" ");
+const FWS=new Set(FW);
+function styleProfile(text){
+  const tok=tokens(text).map(t=>t.w),n=tok.length||1;
+  const sents=text.split(/[.!?…]+\s+|\n+/).map(s=>tokens(s).length).filter(x=>x>0);
+  let mattr=0,w=0;if(tok.length>=50){for(let i=0;i+50<=tok.length;i+=10){mattr+=new Set(tok.slice(i,i+50)).size/50;w++;}mattr/=w;}else mattr=new Set(tok).size/n;
+  const per=re=>100*(text.match(re)||[]).length/n;
+  const norm=text.toLowerCase().replace(/\s+/g," "),tri=new Map();
+  for(let i=0;i+3<=norm.length;i++){const g=norm.slice(i,i+3);tri.set(g,(tri.get(g)||0)+1);}
+  const fw=counts(tok.filter(t=>FWS.has(t)));let fwN=0;for(const v of fw.values())fwN+=v;
+  return{n:tok.length,tri,fw,fwN,scalars:{
+    "Mean sentence length, words":sents.length?sents.reduce((a,b)=>a+b,0)/sents.length:0,
+    "Mean word length, letters":tok.reduce((a,t)=>a+t.length,0)/n,
+    "Vocabulary variety (50-word windows)":mattr,
+    "Commas per 100 words":per(/,/g),
+    "Semicolons and colons per 100 words":per(/[;:]/g),
+    "Dashes per 100 words":per(/[—–]| - /g),
+    "Questions and exclamations per 100 words":per(/[?!]/g)}};
+}
+function styleScore(a,b){
+  const tri=cosine(a.tri,b.tri),useFw=a.fwN>=20&&b.fwN>=20,fw=useFw?cosine(a.fw,b.fw):null;
+  const ks=Object.keys(a.scalars);let d=0;
+  for(const k of ks){const x=a.scalars[k],y=b.scalars[k],m=Math.max(x,y);d+=m>0?Math.abs(x-y)/m:0;}
+  const sc=1-d/ks.length;
+  const score=useFw?.5*tri+.3*fw+.2*sc:(.5*tri+.2*sc)/.7;
+  return{score,tri,fw,sc};
+}
+let candN=0;
+function addCand(name,text){
+  candN++;const d=document.createElement("div");d.className="src";
+  d.innerHTML=`<div class="src-head"><input type="text" id="cand-name-${candN}" aria-label="Candidate name" value="${esc(name||"Candidate "+candN)}"><button type="button" class="x" aria-label="Remove this candidate">Remove</button></div><textarea id="cand-text-${candN}" rows="6" aria-label="Writing samples"></textarea>`;
+  d.querySelector("textarea").value=text||"";
+  d.querySelector("button").onclick=()=>d.remove();
+  $("cands").appendChild(d);
+}
+function runAuth(){
+  const q=$("q").value,cs=[...$("cands").children].map(d=>({name:d.querySelector("input").value.trim()||"Unnamed candidate",text:d.querySelector("textarea").value})).filter(c=>c.text.trim());
+  const box=$("r-auth");
+  if(tokens(q).length<20||!cs.length){box.innerHTML=`<h2>Report</h2><p class="hint">Enter a questioned text of at least 20 words and at least one candidate sample, then select Compare style.</p>`;return;}
+  const qp=styleProfile(q),res=cs.map(c=>{const p=styleProfile(c.text);return{name:c.name,p,...styleScore(qp,p)};}).sort((a,b)=>b.score-a.score);
+  const short=qp.n<150||res.some(r=>r.p.n<150),top=res[0],gap=res.length>1?top.score-res[1].score:null;
+  const fmt=v=>v>=10?v.toFixed(1):v.toFixed(2);
+  box.innerHTML=`<h2>Report</h2>
+  <div class="verdict">${res.length>1?`<span>Closest in style: <b>${esc(top.name)}</b>, ahead of the next candidate by ${gap.toFixed(3)}.</span>`:`<span>Only one candidate was given, so there is nothing to rank against. Add a second writer for a meaningful comparison.</span>`}</div>
+  ${short?`<div class="verdict"><span class="pill warn">Short text</span><span>At least one text has fewer than 150 words. Scores from short texts are unstable.</span></div>`:""}
+  <div class="tablebox"><table><tr><th>Candidate</th><th class="num">Style similarity</th><th class="num">Character trigrams</th><th class="num">Function words</th><th class="num">Habits</th></tr>
+  ${res.map((r,i)=>`<tr class="${i===0&&res.length>1?"best":""}"><td>${esc(r.name)}<div class="hint">${r.p.n} words</div></td><td class="num"><b>${r.score.toFixed(3)}</b><div class="bar"><i style="width:${(100*r.score).toFixed(1)}%"></i></div></td><td class="num">${r.tri.toFixed(3)}</td><td class="num">${r.fw===null?"n/a":r.fw.toFixed(3)}</td><td class="num">${r.sc.toFixed(3)}</td></tr>`).join("")}</table></div>
+  <div class="field"><span class="lab">Writing habits side by side</span>
+  <div class="tablebox"><table><tr><th>Habit</th><th class="num">Questioned</th>${res.map(r=>`<th class="num">${esc(r.name)}</th>`).join("")}</tr>
+  ${Object.keys(qp.scalars).map(k=>`<tr><td>${k}</td><td class="num">${fmt(qp.scalars[k])}</td>${res.map(r=>`<td class="num">${fmt(r.p.scalars[k])}</td>`).join("")}</tr>`).join("")}</table></div></div>
+  <p class="hint">Two texts in the same language always share many character patterns, so absolute values run high. The difference between candidates carries the information.</p>`;
+}
+
+/* ---------- example texts (written for this demo) ---------- */
+const EX_SUB="Plagiarism detection has traditionally relied on matching strings of characters. Contextual embeddings represent each word as a function of the entire input sequence, so the same word receives a different vector in a different sentence. This property lets a detector recognise that two passages say the same thing even when they share few words. Systems that only count overlapping word sequences are easily fooled when a student rewrites a passage using synonyms and a new sentence order. In our course, students were asked to compare both families of methods on a small set of essays and to report where each one fails.";
+const EX_A="Static word vectors assign one vector to each word type. Contextual embeddings represent each word as a function of the entire input sequence, so the same word receives a different vector in a different sentence. Models such as BERT are pre-trained on large corpora and then fine-tuned for a specific task.";
+const EX_B="Tools that just tally shared runs of words can be tricked without much effort: a learner only has to reword the paragraph with near-equivalent terms and shuffle the order of its sentences. For that reason, surface matching alone is a weak safeguard.";
+const EX_Q="It rained. We stayed in the lab and ran the tests again. Nothing changed. The model was wrong in the same places, every time. I checked the data. I checked the labels. Then I saw it: the split was leaking. Fix one line, run again, and the score dropped ten points. Good. That was the real number. We wrote it down and went home. Honest results are smaller. They are also the only ones worth keeping. Next morning we started over. New split, new seed, same code. The curve looked ugly but it was ours. I slept well that week.";
+const EX_C1="The seed was fixed. We ran it five times anyway. Same result, five times. That is what you want. Then we changed the tokenizer and everything moved. Not much, but enough. I wrote the numbers on the board. Small gains, all of them. No single trick did the work. It was ten small things. Clean the data. Check the labels. Split by author, not by document. Run again. People want one big idea. There usually is not one. There is a list, and you go down it. We went down it for a month. By the end the model was better and we knew why. That matters more than the score.";
+const EX_C2="Although the initial experiments appeared, at first glance, to confirm our hypothesis, a more careful examination of the evaluation protocol revealed that the partition between training and test material had been constructed at the level of documents rather than authors; consequently, the classifier was able to exploit idiosyncratic regularities that it had already encountered during training. Once this deficiency had been remedied, the reported accuracy declined considerably, which, while disappointing, provided a far more trustworthy estimate of the system's behaviour on unseen writers. It is worth emphasising, moreover, that the subsequent improvements were obtained not through any single architectural innovation but through the patient accumulation of modest refinements, each of which was validated independently.";
+
+/* ---------- wiring ---------- */
+$("sub").value=EX_SUB;addSource("Lecture notes on embeddings",EX_A);addSource("Blog post, paraphrased passage",EX_B);
+$("q").value=EX_Q;addCand("Student A, earlier report",EX_C1);addCand("Student B, earlier report",EX_C2);
+const wc=(ta,out)=>{const f=()=>$(out).textContent=tokens($(ta).value).length+" words";$(ta).addEventListener("input",f);f();return f;};
+const subCount=wc("sub","sub-count");wc("q","q-count");
+$("f-check").addEventListener("submit",e=>{e.preventDefault();runCheck();});
+$("f-auth").addEventListener("submit",e=>{e.preventDefault();runAuth();});
+$("add-src").onclick=()=>addSource();
+$("add-cand").onclick=()=>addCand();
+$("clear-check").onclick=()=>{$("sub").value="";$("sources").innerHTML="";srcN=0;addSource();subCount();$("ex-note").textContent="";runCheck();};
+readTxt($("sub-file"),$("sub"),f=>$("ex-note").textContent="Loaded "+f.name+".");
+$("k").addEventListener("change",runCheck);
+runCheck();runAuth();
+
+/* docs table of contents: buttons, because the URL hash is used for views */
+for(const s of document.querySelectorAll("#manual section")){const b=document.createElement("button");b.type="button";b.textContent=s.querySelector("h2").textContent;b.onclick=()=>s.scrollIntoView();$("toc").appendChild(b);}
+
+/* views routed on the hash */
+function route(){
+  const v=["check","authorship","docs","about"].includes(location.hash.slice(1))?location.hash.slice(1):"check";
+  for(const el of document.querySelectorAll(".view"))el.classList.toggle("on",el.id==="v-"+v);
+  for(const a of document.querySelectorAll("nav a")){if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");}
+  window.scrollTo(0,0);
+}
+addEventListener("hashchange",route);route();
+</script>
+</body>
+</html>
