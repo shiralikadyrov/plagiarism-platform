@@ -2,7 +2,7 @@
 
 Open-access tools and documentation from the research project
 **Advancing Plagiarism Detection through Contextual Embeddings**
-(SDU NLP, SDU University, Kaskelen, Kazakhstan, 2024 to 2026).
+(project No. АР2348777; SDU NLP, SDU University, Kaskelen, Kazakhstan, 2024 to 2026).
 
 **Live site:** https://shiralikadyrov.github.io/plagiarism-platform/
 
@@ -111,4 +111,4 @@ Use GitHub's **Cite this repository** button, or:
 ## Acknowledgement
 
 This work is supported by grant funding for scientific and scientific-technical
-projects (grant number to be added in `project-data.js` and here).
+projects, project No. АР2348777.

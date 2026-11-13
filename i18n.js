@@ -239,7 +239,9 @@ window.I18N = {
   "about.r2": "Сервер API, описанный в <a href=\"#docs\">документации</a>, загружает модели эмбеддингов проекта из задачи 1 и предоставляет их другим системам.",
   "about.r3": "<a href=\"#authorship\">Раздел «Авторство»</a> даёт первое, прозрачное представление о стиле письма — втором направлении исследований проекта.",
   "about.r4": "Плагин для Moodle переносит прошедшую валидацию систему из задачи 3 на платформу, где преподаватели уже оценивают работы.",
-  "footer": "Проект «Advancing Plagiarism Detection through Contextual Embeddings», SDU NLP, SDU University. <a href=\"https://github.com/shiralikadyrov/plagiarism-platform\">Исходный код</a> · <a href=\"#docs\">Документация</a> · Показатели помогают проверке, которую выполняет человек, и не заменяют её."
+  "footer": "Проект «Advancing Plagiarism Detection through Contextual Embeddings», SDU NLP, SDU University. <a href=\"https://github.com/shiralikadyrov/plagiarism-platform\">Исходный код</a> · <a href=\"#docs\">Документация</a> · Показатели помогают проверке, которую выполняет человек, и не заменяют её.",
+  "Project No. {n}": "Проект № {n}",
+  "No. {n}": "№ {n}"
  },
  "kk": {
   "Skip to the main content": "Негізгі мазмұнға өту",
@@ -463,6 +465,8 @@ window.I18N = {
   "about.r2": "<a href=\"#docs\">Құжаттамада</a> сипатталған API сервері 1-міндеттегі жобаның эмбеддинг модельдерін жүктеп, оларды басқа жүйелерге ұсынады.",
   "about.r3": "<a href=\"#authorship\">«Авторлық» бөлімі</a> жазу стилі туралы алғашқы, ашық түсінік береді; бұл — жобаның екінші зерттеу бағыты.",
   "about.r4": "Moodle плагині 3-міндетте валидациядан өткен жүйені оқытушылар жұмыстарды бағалайтын платформаға жеткізеді.",
-  "footer": "«Advancing Plagiarism Detection through Contextual Embeddings» жобасы, SDU NLP, SDU University. <a href=\"https://github.com/shiralikadyrov/plagiarism-platform\">Бастапқы код</a> · <a href=\"#docs\">Құжаттама</a> · Көрсеткіштер адам жүргізетін тексеруге көмектеседі, бірақ оны алмастырмайды."
+  "footer": "«Advancing Plagiarism Detection through Contextual Embeddings» жобасы, SDU NLP, SDU University. <a href=\"https://github.com/shiralikadyrov/plagiarism-platform\">Бастапқы код</a> · <a href=\"#docs\">Құжаттама</a> · Көрсеткіштер адам жүргізетін тексеруге көмектеседі, бірақ оны алмастырмайды.",
+  "Project No. {n}": "Жоба № {n}",
+  "No. {n}": "№ {n}"
  }
 };

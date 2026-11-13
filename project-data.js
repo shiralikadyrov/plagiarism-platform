@@ -12,7 +12,7 @@
  */
 window.PROJECT_DATA = {
   // Grant number (IRN) of the project, for example "AP00000000".
-  grantNumber: "",
+  grantNumber: "АР2348777",
 
   // DOI of the archived release (Zenodo), without "https://doi.org/".
   doi: "",

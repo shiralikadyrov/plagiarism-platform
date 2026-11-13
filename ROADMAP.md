@@ -18,7 +18,7 @@ Status values: `Done`, `In progress`, `To do`.
 | Reference API (`server.py`) | In progress | `/health`, `/v1/ping`, `/v1/compare`, `/v1/authorship`. 12 automated tests with a stub encoder, lint, CI workflow. `Dockerfile` written but not yet built. Not yet run with the project's fine-tuned model. |
 | Moodle plugin (`integrations/moodle/sduembed`) | In progress | Code complete for assignments (queue, scheduled task, grading-view result, report, settings, privacy API, three languages). API client and result merging tested against the live API server. **Not yet installed on a Moodle site.** |
 | Public hosting | Done | https://shiralikadyrov.github.io/plagiarism-platform/ |
-| Project facts on the site | To do | Grant number, task 3.2 results, publications, model links and pilot sites are entered in `project-data.js`. All are empty. |
+| Project facts on the site | To do | Task 3.2 results, publications, model links and pilot sites are entered in `project-data.js`. Grant number is entered; the rest are empty. |
 
 ---
 
@@ -56,7 +56,7 @@ plagiarism-platform/
 | A5 | Add `CITATION.cff` with authors, title, version and repository URL. | `CITATION.cff` | GitHub shows the "Cite this repository" button. | Should · Done |
 | A6 | Fill the "Source, licence and citation" section on the platform with the repository URL, licence and citation. | Updated `index.html` | Placeholder text removed. | Must · Done |
 | A7 | Tag release `v1.0.0` and archive it on Zenodo to get a DOI. | Release, DOI | DOI resolves and is shown in README and on the platform. | Should |
-| A8 | Add the grant number to the platform's project page and README. | Updated pages | Grant number visible. | Must · Site reads it from `project-data.js`; number still to be entered |
+| A8 | Add the grant number to the platform's project page and README. | Updated pages | Grant number visible. | Must · Done (АР2348777) |
 
 ---
 
